@@ -561,7 +561,7 @@
 	<h1>FloWrestling Statistics Calculator</h1>
 	<div class="id-input">
 		<div>
-			<input type="text" placeholder="Athlete ID or Name" bind:value={input}>
+			<input type="text" placeholder="Athlete ID or Name" bind:value={input} name="athlete-id">
 			<button type="button" on:click={on_search_click}>Search</button>
 		</div>
 		<div>
