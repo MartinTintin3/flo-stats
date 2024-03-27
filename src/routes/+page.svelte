@@ -355,7 +355,7 @@
 								state: opponent_team.attributes.state,
 							},
 						} : null,
-						weightClass: weight_class ? `${weight_class.attributes.name} ${division.attributes.measurementUnit}` : "N/A",
+						weight_class: weight_class ? `${weight_class.attributes.name} ${division.attributes.measurementUnit}` : "N/A",
 						result: `${bout.attributes.winType} ${bout.attributes.result}`,
 						win: winner.attributes.identityPersonId == wrestler.attributes.identityPersonId,
 						round: round.attributes.displayName,
