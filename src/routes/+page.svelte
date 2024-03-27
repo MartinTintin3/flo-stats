@@ -502,8 +502,6 @@
 	<title>Flo Stats</title> 
 </svelte:head>
 
-<!---<svelte:window on:keydown={({ repeat, key }) => { if (!repeat && key == "Enter") { on_search_click() } }} on:popstate={handle_popstate} /> -->
-
 <Modal bind:showModal = {showing_help}>
 	<div slot="header">
 		<h2>How to use this tool</h2>
@@ -560,7 +558,7 @@
 	<div class="id-input">
 		<div>
 			<input type="text" placeholder="Athlete ID or Name" bind:value={input} name="athlete-id">
-			<button type="button" on:click={on_search_click}>Search</button>
+			<button type="submit" id="search-btn" on:click={e => { e.preventDefault(); on_search_click(); }}>Search</button>
 		</div>
 		<div>
 			<button type="button" on:click={() => {
