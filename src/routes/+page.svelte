@@ -441,6 +441,10 @@
 		if (!name.match(/^(?:(?!:\/\/|flowrestling).)*$/gm)) return alert("Invalid input");
 
 		searching_state = SearchingState.SEARCHING;
+		show_search_modal = false;
+
+		await (new Promise(r => setTimeout(r, 500)));
+
 		show_search_modal = true;
 
 		const res = await (await fetch(`https://api.flowrestling.org/api/experiences/web/legacy-core/search?site_id=2&version=1.24.0&limit=200&view=global-search-web&fields=data%3C1%3E&q=${encodeURIComponent(name)}&page=1&type=person`)).json();
@@ -502,6 +506,8 @@
 	<title>Flo Stats</title> 
 </svelte:head>
 
+<svelte:window on:keydown={({ key, repeat }) => { if (!repeat && key == "Enter") { on_search_click(); } }} />
+
 <Modal bind:showModal = {showing_help}>
 	<div slot="header">
 		<h2>How to use this tool</h2>
@@ -558,7 +564,7 @@
 	<div class="id-input">
 		<div>
 			<input type="text" placeholder="Athlete ID or Name" bind:value={input} name="athlete-id">
-			<button type="submit" id="search-btn" on:click={e => { e.preventDefault(); on_search_click(); }}>Search</button>
+			<button type="button" id="search-btn" on:click={e => { e.preventDefault(); on_search_click(); }}>Search</button>
 		</div>
 		<div>
 			<button type="button" on:click={() => {
