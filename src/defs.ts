@@ -166,5 +166,6 @@ export function getWithProgress(url: string, headers: Headers, onProgress: (load
 }
 
 export function getIncludedObject(data: any, type: string, id: string): any {
+	if (!id) return null;
 	return data.included.find((x: any) => x.type == type && x.id == id);
 }

@@ -24,11 +24,11 @@
 	/** @type {{
 	 * name: string;
 	 * location: {
-	 * 	name: string;
-	 * 	country: string;
-	 * 	city: string;
-	 * 	state: string;
-	 * }
+	 * 	name: string | null;
+	 *	country: string | null;
+	 *	state: string | null;
+	 *  city: string | null;
+	 * } | null;
 	 * hs_graduation_year: number;
 	 * id: string; // Arena Person Identity ID
 	 * }[]} */
@@ -140,8 +140,11 @@
 		wrestler: null,
 	};
 
-	/** @param {string} id */
-	const load_data = async id => {
+	/**
+	 * @param {string} id
+	 * @param {boolean} guaranteed 
+	*/
+	const load_data = async (id, guaranteed = false, latest_location = undefined) => {
 		if (id == "") return alert("No ID/URL provided");
 
 		const headers = new Headers({
@@ -175,21 +178,25 @@
 				const res = await fetch(`https://floarena-api.flowrestling.org/bouts/?identityPersonId=${id}&page[size]=1&page[offset]=0&include=topWrestler,bottomWrestler`, { headers });
 				const data = await res.json();
 
-				const wrestler = data.included.find(x => x.type == "wrestler" && x.attributes.identityPersonId == id);
+				const wrestler = data.included?.find(x => x.type == "wrestler" && x.attributes.identityPersonId == id);
 
-				quick_name = `${wrestler.attributes.firstName} ${wrestler.attributes.lastName}`;
+				if (wrestler) {
+					quick_name = `${wrestler.attributes.firstName} ${wrestler.attributes.lastName}`;
+				} else if (!guaranteed) {
+					return false;
+				}
 
-				document.title = `${quick_name} | Flo Stats`;
 				history.pushState({}, "", `?id=${id}`);
-
-				return !(data.data.length == 0 && data.meta.total == 0);	
+				document.title = `${quick_name} | Flo Stats`;
+		
+				return data.meta.total > 0;
 			} catch (e) {
 				return false;
 			}
 		})()) {
 			downloading = false;
 
-			alert(`No data found for ID ${id}`);
+			alert(`0 matches found for ${quick_name ?? ""} (ID ${id})`);
 			return;
 		}
 
@@ -223,6 +230,8 @@
 			downloading = false;
 
 			console.log("Processing...");
+
+			bouts_data.included = bouts_data.included ?? [];
 
 			bouts_data.included.sort((a, b) => {
 				Date.parse(a.attributes.modifiedDateTimeUtc) - Date.parse(b.attributes.modifiedDateTimeUtc);
@@ -278,11 +287,7 @@
 			 * } */
 			const seasons = [];
 
-			let latest_location = {
-				city: wrestler.attributes.location.city,
-				state: wrestler.attributes.location.state,
-				country: wrestler.attributes.location.country,
-			};
+			latest_location = wrestler?.attributes.location ?? latest_location;
 
 			filteredBouts.forEach(bout => {
 				const top_wrestler = getIncludedObject(bouts_data, "wrestler", bout.attributes.topWrestlerId);
@@ -290,7 +295,7 @@
 
 				const selected_wrestler = top_wrestler ? top_wrestler.attributes.identityPersonId == wrestler.attributes.identityPersonId ? top_wrestler : bottom_wrestler : bottom_wrestler;
 
-				if (latest_location.city == null || latest_location.state == null || latest_location.country == null) {
+				if (!loatest_location || latest_location.city == null || latest_location.state == null || latest_location.country == null) {
 					latest_location = {
 						city: selected_wrestler.attributes.location.city,
 						state: selected_wrestler.attributes.location.state,
@@ -328,10 +333,8 @@
 					const round = getIncludedObject(bouts_data, "roundName", bout.attributes.roundNameId);
 					const division = getIncludedObject(bouts_data, "division", winner.relationships.division.data.id);
 					const opponent = top_wrestler ? top_wrestler.attributes.identityPersonId == wrestler.attributes.identityPersonId ? bottom_wrestler : top_wrestler : bottom_wrestler;
-					const opponent_team = opponent ? getIncludedObject(bouts_data, "team", opponent.attributes.teamId) : null;
+					const opponent_team = getIncludedObject(bouts_data, "team", opponent?.attributes.teamId);
 					const weight_class = getIncludedObject(bouts_data, "weightClass", bout.attributes.weightClassId);
-
-					if (!opponent) console.log(bout);
 
 					let date = new Date(event.attributes.startDateTime);
 					// make sure there is a leading 0
@@ -346,7 +349,7 @@
 							id: event.id,
 						},
 						date: `${month}/${day}/${year}`,
-						division: division.attributes.name,
+						division: division?.attributes.name,
 						opponent: opponent ? {
 							id: opponent.attributes.identityPersonId,
 							name: `${opponent.attributes.firstName} ${opponent.attributes.lastName}`,
@@ -355,7 +358,7 @@
 								state: opponent_team.attributes.state,
 							},
 						} : null,
-						weight_class: weight_class ? `${weight_class.attributes.name} ${division.attributes.measurementUnit}` : "N/A",
+						weight_class: weight_class ? `${weight_class.attributes.name} ${division?.attributes.measurementUnit ?? "lbs"}` : "N/A",
 						result: `${bout.attributes.winType} ${bout.attributes.result}`,
 						win: winner.attributes.identityPersonId == wrestler.attributes.identityPersonId,
 						round: round.attributes.displayName,
@@ -389,10 +392,10 @@
 			});
 
 			placements_data.data.forEach(w => {
-				const event = placements_data.included.find(x => x.type == "event" && x.id == w.relationships.event.data.id);
-				const placement_info = w.relationships.bracketPlacements.data[0] ? placements_data.included.find(x => x.type == "bracketPlacement" && x.id == w.relationships.bracketPlacements.data[0].id) : null;
-				const weight_class = placements_data.included.find(x => x.type == "weightClass" && x.id == w.relationships.weightClass.data.id);
-				const division = placements_data.included.find(x => x.type == "division" && x.id == w.relationships.division.data.id);
+				const event = getIncludedObject(placements_data, "event", w.attributes.eventId);
+				const placement_info = w.relationships.bracketPlacements.data[0] ? getIncludedObject(placements_data, "bracketPlacement", w.relationships.bracketPlacements.data[0].id) : null;
+				const weight_class = getIncludedObject(placements_data, "weightClass", w.attributes.weightClassId);
+				const division = getIncludedObject(placements_data, "division", w.attributes.divisionId);
 
 				const season = get_season(new Date(event.attributes.startDateTime));
 
@@ -405,8 +408,8 @@
 						date: new Date(event.attributes.startDateTime).toLocaleDateString(),
 					},
 					placement: placement_info ? placement_info.attributes.placementDisplay : Date.now() - Date.parse(event.attributes.startDateTime) < 0 ? "N/A (TBD)" : "DNP",
-					division: division.attributes.name,
-					weight_class: weight_class ? weight_class.attributes.name + " lbs" : "",
+					division: division?.attributes.name,
+					weight_class: weight_class ? `${weight_class.attributes.name} ${division?.attributes.measurementUnit ?? "lbs"}`: "",
 				});
 			});
 
@@ -451,18 +454,11 @@
 		} else {
 			search_results = res.data.map(o => { return {
 				name: o.name,
-				location: location ? {
-					name: o.location.name,
-					country: o.location.country,
-					state: o.location.state,
-					city: o.location.city,
-				} : null,
+				location: o.location,
 				hs_graduation_year: o.high_school_grad_year,
 				id: o.arena_person_identity_id,
 			}});
 		}
-
-		console.log(search_results);
 
 		searching_state = SearchingState.NONE;
 	};
@@ -487,6 +483,7 @@
 		if (!input.includes("flowrestling") && !input.includes("-") && !input.match(/[0-9]/)) {
 			search(input);
 		} else {
+			quick_name = null;
 			load_data(input);
 		}
 	};
@@ -524,9 +521,7 @@
 </Modal>
 
 <Modal bind:showModal = {show_search_modal}>
-	<h2 slot="header">
-		Search Results
-	</h2>
+	<h2 slot="header">Results for "{input}"</h2>
 
 	<div class="search-results">
 		{#if searching_state}
@@ -536,18 +531,21 @@
 				<h3>Choose an athlete ({search_total} total):</h3>
 				<div class="search-result-options">
 					{#each search_results as option}
-						<div class="search-result" on:click={() => {
+						<!-- svelte-ignore a11y-click-events-have-key-events -->
+						<button class="search-result" on:click={() => {
 							input = option.id;
 							show_search_modal = false;
 							quick_name = option.name;
-							load_data(option.id);
+							load_data(option.id, true);
 						}}>
-							<span class="option-name">{option.name}</span>
+							<h3 class="option-name">{option.name}</h3>
 							{#if option.location}
-								<span class="option-location">{option.location.city}, {option.location.state}, {option.location.country}</span>
+								<span class="option-location"><span class="bold">Location:</span> {option.location.name} ({option.location.city}, {option.location.state}, {option.location.country})</span>
+							{:else}
+								<span class="option-location"><span class="bold">Location:</span> Unknown</span>
 							{/if}
-							<span class="option-hs-grad-year">HS Graduation Year: {option.hs_graduation_year}</span>
-						</div>
+							<span class="option-hs-grad-year"><span class="bold">HS Graduation Year:</span> {option.hs_graduation_year}</span>
+					</button>
 					{/each}
 				</div>
 			{:else}
@@ -997,12 +995,12 @@
 	}
 
 	.search-result-options > * {
-		flex: 1 1 30%; /* 33% width, no grow, no shrink */
+		flex: 1 0 30%; /* 33% width, no grow, no shrink */
 	}
 
 	 @media (max-width: 800px) {
 		.search-result-options > * {
-			flex: 1 1 40%; /* 33% width, no grow, no shrink */
+			flex: 1 1 100%;
 		}
 		
 		.search-result-options {
