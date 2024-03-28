@@ -354,14 +354,14 @@
 							id: opponent.attributes.identityPersonId,
 							name: `${opponent.attributes.firstName} ${opponent.attributes.lastName}`,
 							team: {
-								name: opponent_team.attributes.name,
-								state: opponent_team.attributes.state,
+								name: opponent_team?.attributes.name,
+								state: opponent_team?.attributes.state,
 							},
 						} : null,
 						weight_class: weight_class ? `${weight_class.attributes.name} ${division?.attributes.measurementUnit ?? "lbs"}` : "N/A",
 						result: `${bout.attributes.winType} ${bout.attributes.result}`,
 						win: winner.attributes.identityPersonId == wrestler.attributes.identityPersonId,
-						round: round.attributes.displayName,
+						round: round?.attributes.displayName,
 					});
 					
 
