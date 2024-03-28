@@ -295,7 +295,7 @@
 
 				const selected_wrestler = top_wrestler ? top_wrestler.attributes.identityPersonId == wrestler.attributes.identityPersonId ? top_wrestler : bottom_wrestler : bottom_wrestler;
 
-				if (!loatest_location || latest_location.city == null || latest_location.state == null || latest_location.country == null) {
+				if (!latest_location || latest_location.city == null || latest_location.state == null || latest_location.country == null) {
 					latest_location = {
 						city: selected_wrestler.attributes.location.city,
 						state: selected_wrestler.attributes.location.state,
