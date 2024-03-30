@@ -2,12 +2,13 @@
 	import { page } from "$app/stores";
 	import { onMount } from "svelte";
 
-	import { afterNavigate } from "$app/navigation";
+	import { afterNavigate, goto } from "$app/navigation";
 	import { ratio, humanFileSize, DownloadingState, getWithProgress, getIncludedObject, SearchingState } from "../defs";
 	
 	import Stats from "../components/Stats.svelte";
 	import Modal from "../components/Modal.svelte";
 	import Collapsible from "../components/Collapsible.svelte";
+	import { browser } from "$app/environment";
 
 	let downloading = false;
 
@@ -20,6 +21,10 @@
 	let downloading_progress = 0; // between 0 and 1;
 
 	let input = "";
+
+	$: currentSearchParams = browser ? Object.fromEntries($page.url.searchParams) : null
+
+  	$: console.log('currentSearchParams', currentSearchParams);
 
 	/** @type {{
 	 * name: string;
@@ -436,7 +441,7 @@
 
 	/** @param {string} name */
 	const search = async (name) => {
-		history.pushState({}, "", `?q=${name}`);
+		goto(`?q=${name}`);
 
 		if (!name.match(/^(?:(?!:\/\/|flowrestling).)*$/gm)) return alert("Invalid input");
 
@@ -476,8 +481,8 @@
 	});
 
 	onMount(() => {
-		const q = $page.url.searchParams.get("q");
-		const id = $page.url.searchParams.get("id");
+		const q = currentSearchParams?.q;
+		const id = currentSearchParams?.id;
 
 		if (id) { load_data(id); input = id; return; }
 		if (q && !searching_state) { search(q); input = q; return; }
@@ -536,12 +541,12 @@
 				<div class="search-result-options">
 					{#each search_results as option}
 						<!-- svelte-ignore a11y-click-events-have-key-events -->
-						<button class="search-result" on:click={() => {
+						<a class="search-result" on:click={() => {
 							input = option.id;
 							show_search_modal = false;
 							quick_name = option.name;
-							load_data(option.id, true);
-						}}>
+							//load_data(option.id, true);
+						}} href="?id={option.id}">
 							<h3 class="option-name">{option.name}</h3>
 							{#if option.location}
 								<span class="option-location"><span class="bold">Location:</span> {option.location.name} ({option.location.city}, {option.location.state}, {option.location.country})</span>
@@ -549,7 +554,7 @@
 								<span class="option-location"><span class="bold">Location:</span> Unknown</span>
 							{/if}
 							<span class="option-hs-grad-year"><span class="bold">HS Graduation Year:</span> {option.hs_graduation_year}</span>
-					</button>
+						</a>
 					{/each}
 				</div>
 			{:else}
@@ -1019,6 +1024,13 @@
 		border: 1px solid #ccc;
 		border-radius: 5px;
 		padding: 1em;
+		color: black;
+		text-decoration: none;
+	}
+
+	.search-result * {
+		color: black;
+		text-decoration: none;
 	}
 
 	.search-result:hover {
