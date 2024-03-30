@@ -22,9 +22,7 @@
 
 	let input = "";
 
-	$: currentSearchParams = browser ? Object.fromEntries($page.url.searchParams) : null
-
-  	$: console.log('currentSearchParams', currentSearchParams);
+	$: currentSearchParams = browser ? Object.fromEntries($page.url.searchParams) : null;
 
 	/** @type {{
 	 * name: string;
@@ -191,7 +189,6 @@
 					return false;
 				}
 
-				history.pushState({}, "", `?id=${id}`);
 				document.title = `${quick_name} | Flo Stats`;
 		
 				return data.meta.total > 0;
