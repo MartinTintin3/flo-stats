@@ -259,9 +259,22 @@
 				ratio: [0, 0],
 			};
 
+			/** @type {number | null} */
+			let oldest_year = null;
+			/** @type {number | null} */
+			let latest_year = null;
+
 			filteredBouts.forEach(bout => {
 				const winner = getIncludedObject(bouts_data, "wrestler", bout.attributes.winnerWrestlerId);
 				if (winner && !(bout.attributes.dualId && bout.attributes.winType == "FOR")) {
+					const year = new Date(bout.attributes.modifiedDateTimeUtc || bout.attributes.createdDateTimeUtc).getFullYear();
+
+					if (oldest_year == null || year < oldest_year) {
+						oldest_year = year;
+					} else if (latest_year == null || year > latest_year) {
+						latest_year = year;
+					}
+
 					total_stats.total++;
 					if (winner.attributes.identityPersonId == wrestler.attributes.identityPersonId) {
 						total_stats.wins++;
@@ -426,6 +439,8 @@
 				lastName: wrestler.attributes.lastName,
 				grade: seasons[0].grade,
 				location: latest_location,
+				oldest_year,
+				latest_year,
 				total_stats,
 				seasons,
 			}
@@ -616,7 +631,7 @@
 
 				<div class="all-stats-container">
 					<div class="total-stats">
-						<span class="stats-group-label">Total</span>
+						<span class="stats-group-label">Total ({data.wrestler.oldest_year} - {data.wrestler.latest_year})</span>
 						<Stats stats={data.wrestler.total_stats}/>
 					</div>
 					<div class="season-stats">

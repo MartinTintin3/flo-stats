@@ -66,6 +66,8 @@ export interface Wrestler {
 	firstName: string;
 	lastName: string;
 	grade: Grade | null;
+	oldest_year: number;
+	latest_year: number;
 	location: {
 		city: string;
 		country: string;
