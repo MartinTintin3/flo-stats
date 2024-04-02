@@ -3,3 +3,6 @@ node_modules/
 
 .replit
 replit.nix
+
+.DS_Store
+**/.DS_Store
