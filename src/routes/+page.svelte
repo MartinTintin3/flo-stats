@@ -3,7 +3,7 @@
 	import { onMount } from "svelte";
 
 	import { afterNavigate, goto } from "$app/navigation";
-	import { ratio, humanFileSize, DownloadingState, getWithProgress, getIncludedObject, SearchingState, exportMatches } from "../defs";
+	import { ratio, humanFileSize, DownloadingState, getWithProgress, getIncludedObject, SearchingState, exportMatches, exportSeasons } from "../defs";
 	
 	import Stats from "../components/Stats.svelte";
 	import Modal from "../components/Modal.svelte";
@@ -528,6 +528,22 @@
 		URL.revokeObjectURL(url);
 	};
 
+	/**
+	 * @param {import("../defs").Wrestler} wrestler
+	 */
+	const export_total_seasons = wrestler => {
+		const csv = exportSeasons(wrestler.seasons);
+
+		const blob = new Blob([csv], { type: "text/csv" });
+		const url = URL.createObjectURL(blob);
+
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = `${wrestler.firstName} ${wrestler.lastName} Seasons.csv`;
+		a.click();
+		URL.revokeObjectURL(url);
+	};
+
 	let showing_help = false;
 </script>
 
@@ -645,6 +661,7 @@
 					<div class="total-stats">
 						<span class="stats-group-label">Total ({data.wrestler.oldest_year} - {data.wrestler.latest_year})</span>
 						<Stats stats={data.wrestler.total_stats}/>
+						<button class="export-seasons" on:click={() => export_total_seasons(data.wrestler)}>Export Total Seasons CSV</button>
 					</div>
 					<div class="season-stats">
 						<span class="stats-group-label">Seasons</span>
