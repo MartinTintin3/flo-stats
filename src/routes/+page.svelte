@@ -3,7 +3,7 @@
 	import { onMount } from "svelte";
 
 	import { afterNavigate, goto } from "$app/navigation";
-	import { ratio, humanFileSize, DownloadingState, getWithProgress, getIncludedObject, SearchingState } from "../defs";
+	import { ratio, humanFileSize, DownloadingState, getWithProgress, getIncludedObject, SearchingState, exportMatches } from "../defs";
 	
 	import Stats from "../components/Stats.svelte";
 	import Modal from "../components/Modal.svelte";
@@ -292,13 +292,7 @@
 
 			total_stats.ratio = ratio(total_stats.wins, total_stats.losses);
 
-			/** @type {Array<{
-			 * 	season: string,
-			 * 	stats: import("../defs").Stats,
-			 * 	grade: import("../defs").Grade | null,
-			 * 	placements: Array<import("../defs").PlacementInfo>,
-			 *  matches: Array<import("../defs").Match>
-			 * }>
+			/** @type {Array<import("../defs").Season>
 			 * } */
 			const seasons = [];
 
@@ -322,9 +316,9 @@
 				if (winner && !(bout.attributes.dualId && (bout.attributes.winType == "FOR" || bout.attributes.winType == "VFO"))) {
 					const season = get_season(new Date(bout.attributes.modifiedDateTimeUtc || bout.attributes.createdDateTimeUtc));
 
-					if (!seasons.find(x => x.season == season)) {
+					if (!seasons.find(x => x.name == season)) {
 						seasons.push({
-							season,
+							name: season,
 							stats: {
 								total: 0,
 								wins: 0,
@@ -340,7 +334,7 @@
 					}
 
 					// @ts-ignore
-					const season_stats = seasons.find(x => x.season == season).stats;
+					const season_stats = seasons.find(x => x.name == season).stats;
 
 					season_stats.total++;
 
@@ -357,7 +351,7 @@
 					let day = date.getDate().toString().padStart(2, "0");
 					let year = date.getFullYear();
 
-					seasons.find(x => x.season == season).matches.push({
+					seasons.find(x => x.name == season).matches.push({
 						id: bout.id,
 						event: {
 							name: event.attributes.name,
@@ -394,7 +388,7 @@
 
 					if (selected_wrestler.attributes.grade && selected_wrestler.attributes.grade.attributes.name != "NA") {
 						console.log(selected_wrestler.attributes.grade.attributes.name, selected_wrestler.attributes.grade.attributes.numericValue);
-						seasons.find(x => x.season == season).grade = {
+						seasons.find(x => x.name == season).grade = {
 							name: selected_wrestler.attributes.grade.attributes.name,
 							number: selected_wrestler.attributes.grade.attributes.numericValue,
 						};
@@ -416,7 +410,7 @@
 
 				if (event.attributes.isDual) return;
 
-				seasons.find(x => x.season == season)?.placements.push({
+				seasons.find(x => x.name == season)?.placements.push({
 					event: {
 						name: event.attributes.name,
 						id: event.id,
@@ -444,6 +438,8 @@
 				total_stats,
 				seasons,
 			}
+
+			console.log(exportMatches(data.wrestler.seasons[0].matches));
 
 			input = "";
 
@@ -515,6 +511,22 @@
 			if (id) { load_data(id); input = id };
 		}
 	}
+
+	/**
+	 * @param {import("../defs").Season} season
+	 */
+	const export_season = (season, wrestler_name) => {
+		const csv = exportMatches(season.matches);
+
+		const blob = new Blob([csv], { type: "text/csv" });
+		const url = URL.createObjectURL(blob);
+
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = `${wrestler_name} ${season.name}.csv`;
+		a.click();
+		URL.revokeObjectURL(url);
+	};
 
 	let showing_help = false;
 </script>
@@ -639,7 +651,7 @@
 						<div class="season-list">
 							{#each data.wrestler.seasons as season}
 								<div class="season">
-									<h3 class="stats-label">{season.season}</h3>
+									<h3 class="stats-label">{season.name}</h3>
 									{#if season.grade}
 										<span class="stats-data-field"><span class="stats-data-field-label">Grade:</span> ({season.grade.number}) {season.grade.name}</span>
 									{/if}
@@ -725,6 +737,7 @@
 											</Collapsible>
 										{/if}
 									</div>
+									<button class="export-season" on:click={() => export_season(season, data.wrestler.firstName + data.wrestler.lastName)}>Export to CSV</button>
 								</div>
 							{/each}
 						</div>
@@ -991,6 +1004,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
+		margin-bottom: 1em;
 	}
 
 	.opponent-name a:hover {

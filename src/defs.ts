@@ -61,6 +61,14 @@ export interface Match {
 	win: boolean;
 }
 
+export interface Season {
+	name: string;
+	stats: Stats;
+	placements: Array<PlacementInfo>,
+	matches: Array<Match>;
+	grade: Grade | null;
+}
+
 export interface Wrestler {
 	id: string;
 	firstName: string;
@@ -74,13 +82,7 @@ export interface Wrestler {
 		state: string;
 	};
 	total_stats: Stats;
-	seasons: Array<{
-		season: string;
-		stats: Stats;
-		placements: Array<PlacementInfo>,
-		matches: Array<Match>;
-		grade: Grade | null;
-	}>;
+	seasons: Array<Season>;
 }
 
 export interface Data {
@@ -170,4 +172,41 @@ export function getWithProgress(url: string, headers: Headers, onProgress: (load
 export function getIncludedObject(data: any, type: string, id: string): any {
 	if (!id) return null;
 	return data.included.find((x: any) => x.type == type && x.id == id);
+}
+
+/**
+ * Export matches to CSV
+ * @param {Match[]} matches
+ */
+export function exportMatches(matches: Match[]): string {
+	const header = "Date,Event,Opponent,Opponent-Team,Result,Outcome,Round,Weight-Class\n";
+	const rows = matches.map((match) => {
+		const date = new Date(match.date).toLocaleDateString().replace(/\//g, "-");
+		const event = match.event.name || "";
+		const opponent = match.opponent?.name || "";
+		const team = match.opponent?.team?.name || "";
+		const result = match.result || "";
+		const outcome = match.win ? "W" : "L";
+		const round = match.round || "";
+		const weight_class = match.weight_class || "";
+		return `${date},"${event}","${opponent}","${team}","${result}",${outcome},${round},${weight_class}`;
+	});
+	return header + rows.join("\n");
+}
+
+/**
+ * Export seasons to csv
+ */
+export function exportSeasons(seasons: Season[]): string {
+	const header = "Season,Matches,Wins,Losses,Pins,Techs,Ratio\n";
+	const rows = seasons.map((season) => {
+		const total = season.stats.total;
+		const wins = season.stats.wins;
+		const losses = season.stats.losses;
+		const pins = season.stats.pins;
+		const techs = season.stats.techs;
+		const ratio = season.stats.ratio.join(":");
+		return `${season.name},${total},${wins},${losses},${pins},${techs},${ratio}`;
+	});
+	return header + rows.join("\n");
 }
