@@ -1,0 +1,20 @@
+{
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+		"project": true,
+		"ecmaVersion": "latest"
+	},
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended-type-checked",
+		"plugin:react/recommended"
+	],
+	"plugins": ["@typescript-eslint"],
+	"rules": {
+		"brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+		"semi": ["error", "always"],
+		"quotes": ["error", "double"],
+		"indent": ["error", "tab"]
+		
+	}
+}
