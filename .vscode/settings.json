@@ -1,4 +1,7 @@
 {
 	"editor.insertSpaces": false,
-	"editor.comments.insertSpace": true
+	"editor.comments.insertSpace": true,
+	"files.associations": {
+		".css": "tailwindcss",
+	}
 }
