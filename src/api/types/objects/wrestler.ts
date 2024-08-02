@@ -1,7 +1,9 @@
 import { GradeObject } from "./grade";
-import { FloBaseObject, ObjectIdentifier, UUID } from "../types";
+import { DateTime, FloBaseObject, ObjectIdentifier, UUID } from "../types";
+import { LocationObject } from "./location";
 
 export type WrestlerAttributes = {
+	identityPersonId: UUID;
 	city: string;
 	divisionId: UUID;
 	eventId: UUID;
@@ -10,24 +12,17 @@ export type WrestlerAttributes = {
 	fullName: string;
 	lastname: string;
 	grade: GradeObject;
-	gradeId: UUID;
-	identityPersonId: UUID;
+	gradeId: UUID | null;
+	createdByUserId: string;
+	createdDateTimeUtc: DateTime;
+	modifiedByUserId: string | null;
+	modifiedDateTimeUtc: DateTime;
+	dateOfBirth: string | null;
+	gender: string;
 	isSkinChecked: boolean;
 	isTeamScorer: boolean;
 	isWeighInOk: boolean;
-	location: {
-		address: string | null;
-		city: string;
-		country: string;
-		googlePlaceId: string;
-		id: string;
-		latitude: number;
-		longitude: number;
-		name: string;
-		state: string;
-		zipCode: string | null;
-	}
-	modifiedDateTime: string;
+	location: LocationObject;
 	nickname: string | null;
 	state: string;
 	teamId: UUID;
@@ -38,14 +33,6 @@ export type WrestlerAttributes = {
 
 export type WrestlerIdentifier = ObjectIdentifier & {
 	type: "wrestler";
-}
-
-export type TopWrestlerRelationship = {
-	topWrestler: { data: WrestlerIdentifier };
-}
-
-export type BottomWrestlerRelationship = {
-	bottomWrestler: { data: WrestlerIdentifier };
 }
 
 export type WrestlerObject = FloBaseObject<WrestlerIdentifier, WrestlerAttributes>;

@@ -36,8 +36,4 @@ export type DivisionIdentifier = ObjectIdentifier & {
 	type: "division";
 }
 
-export type DivisionRelationship = {
-	division: { data: DivisionIdentifier };
-}
-
 export type DivisionObject = FloBaseObject<DivisionIdentifier, DivisionAttributes>;

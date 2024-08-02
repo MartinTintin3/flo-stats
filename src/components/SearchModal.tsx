@@ -1,5 +1,5 @@
 import { Button, Flex, Modal, ScrollArea, Text, Title } from "@mantine/core";
-import { SearchResults } from "../types/response";
+import { SearchResults } from "../api/types/responses";
 
 type SearchModalProps = {
 	searchTerm: string;

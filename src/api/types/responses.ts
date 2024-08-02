@@ -1,11 +1,44 @@
 import { BoutObject } from "./objects/bout";
 import { WrestlerObject } from "./objects/wrestler";
-import { UUID } from "./types";
+import { Relationship, RelationshipToBout, RelationshipToWrestler } from "./relationships";
+import { DateTime, FloObject, Nothing, UUID } from "./types";
+
+// Base response
+export type BaseResponse<O extends FloObject, R extends Relationship | void, I = Exclude<FloObject, O> | void> = {
+	data: Array<O & (R extends void ? Nothing : { relationships: R })>;
+	meta: {
+		total: number;
+	}
+	link: {
+		first: string;
+		last?: string;
+		next?: string;
+		prev?: string;
+	},
+} & (I extends void ? Nothing : { included: Array<I> });
+
+
+export type BoutsResponse<R extends RelationshipToBout | void, I extends Exclude<FloObject, BoutObject> | void> = BaseResponse<BoutObject, R, I>;
+export type WrestlersResponse<R extends RelationshipToWrestler | void, I extends Exclude<FloObject, WrestlerObject> | void> = BaseResponse<WrestlerObject, R, I>;
 
 export type SearchResults = {
 	data: Array<{
 		arena_person_identity_id: UUID;
-		asset: any; // TODO
+		asset: {
+			size_label: string;
+			raw_url: string;
+			id: number;
+			title: string;
+			source: string;
+			url: string;
+			status_code: number;
+			path: string;
+			copied: boolean;
+			duplicated: boolean;
+			file_type: string;
+			created_at: DateTime;
+			modified_at: DateTime;
+		};
 		asset_url: string;
 		birth_date: string;
 		created_at: string;
@@ -58,20 +91,3 @@ export type SearchResults = {
 		type: string;
 	}
 }
-
-export type BaseResponse<Data, Included> = {
-	data: Array<Data>
-	meta: {
-		total: number;
-	}
-	link: {
-		first: string;
-		last?: string;
-		next?: string;
-		prev?: string;
-	},
-	included: Array<Included>;
-}
-
-export type BoutsResponse<Relationships, Included> = BaseResponse<BoutObject & Relationships, Included>;
-export type WrestlersResponse<Relationships, Included> = BaseResponse<WrestlerObject & Relationships, Included>;

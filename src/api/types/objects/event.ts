@@ -38,8 +38,4 @@ export type EventIdentifier = ObjectIdentifier & {
 	type: "event";
 }
 
-export type EventRelationship = {
-	event: { data: EventIdentifier };
-}
-
 export type EventObject = FloBaseObject<EventIdentifier, EventAttributes>;

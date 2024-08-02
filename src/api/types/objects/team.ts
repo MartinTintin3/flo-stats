@@ -21,8 +21,4 @@ export type TeamIdentifier = ObjectIdentifier & {
 	type: "team";
 }
 
-export type TeamRelationship = {
-	team: { data: TeamIdentifier };
-}
-
 export type TeamObject = FloBaseObject<TeamIdentifier, TeamAttributes>;

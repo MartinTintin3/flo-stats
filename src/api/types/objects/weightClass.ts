@@ -18,8 +18,4 @@ export type WeightClassIdentifier = ObjectIdentifier & {
 	type: "weightClass";
 }
 
-export type WeightClassRelationship = {
-	weightClass: { data: WeightClassIdentifier };
-}
-
 export type WeightClassObject = FloBaseObject<WeightClassIdentifier, WeightClassAttributes>;
