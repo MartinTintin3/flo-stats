@@ -20,7 +20,9 @@
 		"brace-style": ["error", "1tbs", { "allowSingleLine": true }],
 		"semi": ["error", "always"],
 		"quotes": ["error", "double"],
-		"indent": ["error", "tab"]
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
+		"no-trailing-spaces": "error",
+		"no-case-declarations": "off"
 	},
 	"overrides": [
 		{
@@ -28,7 +30,7 @@
 				"node": true
 			},
 			"extends": ["plugin:@typescript-eslint/disable-type-checked"],
-			"files": ["./*.config.js", "./*.config.ts"]
+			"files": ["./*.js", "./*.ts", "./*.cjs"]
 		}
 	]
 }
