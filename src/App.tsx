@@ -40,7 +40,7 @@ function App() {
 	const [wrestlers, setWrestlers] = React.useState<WrestlersResponse<void, Exclude<FloObject, WrestlerObject>> | null>(null);
 	const [bouts, setBouts] = React.useState<BoutsResponse<void, Exclude<FloObject, BoutObject>> | null>(null);
 
-	const [athleteId, setAthleteId] = React.useState<string | null>(null);
+	const [, setAthleteId] = React.useState<string | null>(null);
 
 	const [startDate, setStartDate] = React.useState<Date | null>(null);
 	const [endDate, setEndDate] = React.useState<Date | null>(null);
