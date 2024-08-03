@@ -39,7 +39,7 @@ export type SearchResults = {
 			modified_at: DateTime;
 		};
 		asset_url: string;
-		birth_date: string;
+		birth_date: string | null;
 		created_at: string;
 		name: string;
 		first_name: string;
@@ -57,7 +57,7 @@ export type SearchResults = {
 		type: string;
 		shareable_link: string;
 		is_flo_college: boolean;
-		gender: "m" | "f";
+		gender: "m" | "f" | null;
 		high_scrool_grad_year: number;
 		id: number;
 		location: {
