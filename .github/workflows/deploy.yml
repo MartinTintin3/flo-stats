@@ -6,6 +6,7 @@ on:
 
 jobs:
   build_site:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,6 +33,7 @@ jobs:
 
   deploy:
     needs: build_site
+    name: Deploy
     runs-on: ubuntu-latest
 
     permissions:
