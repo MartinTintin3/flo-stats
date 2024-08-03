@@ -4,7 +4,7 @@ import "@mantine/charts/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/nprogress/styles.css";
 
-import { Button, Group, MantineProvider, Stack, TextInput } from "@mantine/core";
+import { Button, Group, MantineProvider, Stack, TextInput, Title } from "@mantine/core";
 import React from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { DateInput } from "@mantine/dates";
@@ -16,10 +16,9 @@ import WeightChart from "./components/WeightChart";
 import { SearchResults, WrestlersResponse } from "./api/types/responses";
 import FloAPI from "./api/FloAPI";
 import { EventAttributes, EventObject } from "./api/types/objects/event";
-import { EventRelationship, WeightClassRelationship } from "./api/types/relationships";
+import { WrestlerAttributes, WrestlerObject } from "./api/types/objects/wrestler";
+import { FloObject, NonNullableFields, WrestlersIncludeAll } from "./api/types/types";
 import { WeightClassObject } from "./api/types/objects/weightClass";
-import { WrestlerAttributes } from "./api/types/objects/wrestler";
-import { NonNullableFields, WrestlersIncludeAll } from "./api/types/types";
 
 const ID_REGEX = new RegExp("[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}"); // UUID v4
 
@@ -37,7 +36,7 @@ function App() {
 	const [searchModalOpened, { open: openSearchModal, close: closeSearchModal }] = useDisclosure();
 	const [loading, { open: startLoading, close: stopLoading }] = useDisclosure();
 
-	const [wrestlersResponse, setWrestlersResponse] = React.useState<WrestlersResponse<EventRelationship & WeightClassRelationship, EventObject | WeightClassObject> | null>(null);
+	const [wrestlersResponse, setWrestlersResponse] = React.useState<WrestlersResponse<void, Exclude<FloObject, WrestlerObject>> | null>(null);
 
 	const [startDate, setStartDate] = React.useState<Date | null>(null);
 	const [endDate, setEndDate] = React.useState<Date | null>(null);
@@ -101,20 +100,23 @@ function App() {
 		startLoading();
 
 		try {
-			const basicInfo = (await FloAPI.fetchWrestlersByAthleteId<EventRelationship & WeightClassRelationship, EventObject | WeightClassObject>(athleteId, { pageSize: 0, pageOffset: 0 }, {
-				onDownloadProgress: e => {
-					console.log(e);
-				},
-			}, WrestlersIncludeAll)).data;
+			const start = performance.now();
+			const basicInfo = (await FloAPI.fetchWrestlersByAthleteId<void, Exclude<FloObject, WrestlerObject>>(athleteId, {
+				pageSize: 0,
+				pageOffset: 0,
+				onProgress: p => setDownloadProgress(p),
+			}, WrestlersIncludeAll));
+			console.log(((performance.now() - start) / 1000).toFixed(2) + "s");
+
 
 			basicInfo.data = basicInfo.data.sort((a, b) => {
-				return new Date((FloAPI.findIncludedObjectById(a.attributes.eventId, "event", basicInfo)?.attributes as EventAttributes).startDateTime).getTime() - new Date((FloAPI.findIncludedObjectById(b.attributes.eventId, "event", basicInfo)?.attributes as EventAttributes).startDateTime).getTime();
+				return new Date((FloAPI.findIncludedObjectById<EventObject>(a.attributes.eventId, "event", basicInfo)?.attributes as EventAttributes).startDateTime).getTime() - new Date((FloAPI.findIncludedObjectById(b.attributes.eventId, "event", basicInfo)?.attributes as EventAttributes).startDateTime).getTime();
 			});
 
 			setWrestlersResponse(basicInfo);
 
 			console.log(basicInfo.data.map(wrestler => {
-				const event = FloAPI.findIncludedObjectById(wrestler.relationships.event.data.id, "event", basicInfo)?.attributes as EventAttributes;
+				const event = FloAPI.findIncludedObjectById(wrestler.attributes.eventId, "event", basicInfo)?.attributes as EventAttributes;
 				return [event.isDual, event.name];
 			}));
 
@@ -123,8 +125,6 @@ function App() {
 			}))) as NonNullableFields<WrestlerAttributes>;
 
 			console.log(everything);
-
-			setDownloadProgress(0);
 
 			/*const bouts = await axios.get(FloURLS.fetchBouts(id, BOUTS_PER_PAGE, 0));
 			console.log("Downloaded bouts");
@@ -186,23 +186,26 @@ function App() {
 						size="md"
 					>Search</Button>
 				</Group>
-				<Group>
-					<Stack>
-						<DateInput
-							label="Chart Start Date"
-							placeholder="Pick date"
-							value={startDate}
-							onChange={setStartDate}
-						/>
-						<DateInput
-							label="Chart End Date"
-							placeholder="Pick date"
-							value={endDate}
-							onChange={setEndDate}
-						/>
-					</Stack>
-					{wrestlersResponse ? <WeightChart h={400} data={wrestlersResponse} startDate={startDate} endDate={endDate} /> : null}
+				<Group justify="center">
+					<DateInput
+						label="Filter Start Date"
+						placeholder="Pick date"
+						value={startDate}
+						onChange={setStartDate}
+					/>
+					<DateInput
+						label="Filter End Date"
+						placeholder="Pick date"
+						value={endDate}
+						onChange={setEndDate}
+					/>
 				</Group>
+				{wrestlersResponse ? (
+					<Stack>
+						<Title order={2}>Weight Chart</Title>
+						<WeightChart h={400} data={wrestlersResponse as WrestlersResponse<void, WeightClassObject>} startDate={startDate} endDate={endDate} />
+					</Stack>
+				) : null}
 			</Stack>
 		</MantineProvider>
 	);

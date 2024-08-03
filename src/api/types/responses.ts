@@ -9,14 +9,13 @@ export type BaseResponse<O extends FloObject, R extends Relationship | void, I =
 	meta: {
 		total: number;
 	}
-	link: {
+	links: {
 		first: string;
 		last?: string;
 		next?: string;
 		prev?: string;
 	},
-} & (I extends void ? Nothing : { included: Array<I> });
-
+} & ([I] extends [void] ? Nothing : { included: Array<I> });
 
 export type BoutsResponse<R extends RelationshipToBout | void, I extends Exclude<FloObject, BoutObject> | void> = BaseResponse<BoutObject, R, I>;
 export type WrestlersResponse<R extends RelationshipToWrestler | void, I extends Exclude<FloObject, WrestlerObject> | void> = BaseResponse<WrestlerObject, R, I>;
