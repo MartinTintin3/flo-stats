@@ -27,7 +27,7 @@ export type Nothing = Record<string, never>;
 
 export const BoutsIncludeAll = ["bottomWrestler", "bottomWrestler.team", "topWrestler.team", "weightClass", "topWrestler.division", "bottomWrestler.division", "event", "roundName"] as const;
 export type BoutsIncludeString = typeof BoutsIncludeAll[number];
-export const WrestlersIncludeAll = ["bracketPlacements.weightClass", "bracketPlacements", "division", "event", "weightClass", "team"];
+export const WrestlersIncludeAll = ["bracketPlacements.weightClass", "bracketPlacements", "division", "event", "weightClass", "team"] as const;
 export type WrestlersIncludeString = typeof WrestlersIncludeAll[number];
 
 export type NonNullableFields<T> = {

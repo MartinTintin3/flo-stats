@@ -1,9 +1,12 @@
-import { LineChart, LineChartProps } from "@mantine/charts";
+import { ChartTooltip, LineChart, LineChartProps } from "@mantine/charts";
 import FloAPI from "../api/FloAPI";
 import { EventAttributes } from "../api/types/objects/event";
 import { WeightClassObject, WeightClassAttributes } from "../api/types/objects/weightClass";
 import { WrestlersResponse } from "../api/types/responses";
 import React, { useEffect } from "react";
+import { Stack, Title } from "@mantine/core";
+import { ContentType } from "recharts/types/component/Tooltip";
+import dayjs from "dayjs";
 
 type WeightChartProps = {
 	h: number;
@@ -30,6 +33,7 @@ export default function WeightChart({ h = 400, data, startDate, endDate, chartPr
 					date: new Date(event.startDateTime).getTime(),
 					"Weight Class Max": weightClass.maxWeight,
 					"Exact Weight": wrestler.attributes.exactWeight,
+					event: event.name,
 				};
 				setDataMap(prev => {
 					prev.set(obj.date, obj);
@@ -39,25 +43,41 @@ export default function WeightChart({ h = 400, data, startDate, endDate, chartPr
 		});
 	}, [data, startDate, endDate]);
 
-	useEffect(() => {
-		console.log(dataMap);
-	}, [dataMap]);
-
 	return (
 		<LineChart
 			title="Weight Chart"
 			h={h}
 			data={data ? Array.from(dataMap.values()) : []}
-			yAxisProps={{ domain: ["dataMin - 10", "dataMax + 10"] }}
-			xAxisProps={{ type: "number", allowDataOverflow: true, domain: ["dataMin", "dataMax"], scale: "linear", tickFormatter: (v: number) => new Date(v).toLocaleDateString() }}
+			yAxisProps={{ domain: ["dataMin - 10", "dataMax + 10"], ticks: [106, 113, 120, 126, 132, 138, 144, 150, 157, 165, 175, 190, 215, 285] }}
+			xAxisProps={{ type: "number", domain: ["dataMin", "dataMax"], scale: "linear", tickFormatter: (v: number) => new Date(v).toLocaleDateString() }}
 			dataKey="date"
 			connectNulls={false}
-			valueFormatter={(value) => value + " lbs"}
+			tooltipAnimationDuration={100}
+			curveType="monotone"
+			tooltipProps={{
+				content: (({ label, payload }: { label: string, payload: Record<string, unknown>[] }) => (
+					<ChartTooltip
+						label={(
+							<Stack gap={0}>
+								<Title order={4}>{label ? dayjs(label).format("MMMM D, YYYY") : ""}</Title>
+								<Title order={5}>{payload.length ? (payload[0].payload as { event: string }).event : ""}</Title>
+							</Stack>
+						)}
+						payload={payload}
+						series={[
+							{ name: "Weight Class Max", color: "blue" },
+							{ name: "Exact Weight", color: "red" },
+						]}
+						valueFormatter={(v) => v + " lbs"}
+						showColor={true}
+					/>
+				)) as ContentType<string, string>,
+			}}
+			unit=" lbs"
 			series={[
 				{ name: "Weight Class Max", color: "blue" },
 				{ name: "Exact Weight", color: "red" },
 			]}
-			curveType="linear"
 			{...chartProps}
 		/>
 	);
