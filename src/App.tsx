@@ -145,7 +145,7 @@ function App() {
 	};
 
 	return (
-		<MantineProvider defaultColorScheme="light">
+		<MantineProvider defaultColorScheme="dark">
 			<NavigationProgress />
 			<SearchModal searchTerm={inputValue} opened={searchModalOpened} results={searchResults} select={id => void downloadData(id)} close={closeSearchModal}/>
 			<Stack>
