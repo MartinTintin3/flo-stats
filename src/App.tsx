@@ -11,7 +11,6 @@ import { DateInput } from "@mantine/dates";
 import { nprogress, NavigationProgress } from "@mantine/nprogress";
 
 import SearchModal from "./components/SearchModal";
-import WeightChart from "./components/WeightChart";
 
 import { BoutsResponse, SearchResults, WrestlersResponse } from "./api/types/responses";
 import FloAPI from "./api/FloAPI";
