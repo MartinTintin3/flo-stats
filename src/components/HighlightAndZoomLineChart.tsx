@@ -157,7 +157,7 @@ export default function HighlightAndZoomLineChart(props: WeightChartProps) {
                   /*{ name: "Weight Class", color: "blue" },*/
                   { name: "Exact Weight", color: "red" },
                 ]}
-                valueFormatter={(v: string) => v + " lbs"}
+                valueFormatter={(v: number) => v + " lbs"}
                 showColor={true}
               />
             )) as ContentType<string, string>
