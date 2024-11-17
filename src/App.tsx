@@ -20,6 +20,7 @@ import { WrestlerAttributes, WrestlerObject } from "./api/types/objects/wrestler
 import { BoutsIncludeAll, FloObject, NonNullableFields, WrestlersIncludeAll } from "./api/types/types";
 import { WeightClassObject } from "./api/types/objects/weightClass";
 import { BoutObject } from "./api/types/objects/bout";
+import HighlightAndZoomLineChart from "./components/HighlightAndZoomLineChart";
 
 const ID_REGEX = new RegExp("[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}"); // UUID v4
 
@@ -196,7 +197,7 @@ function App() {
 				{wrestlers ? (
 					<Stack>
 						<Title order={2}>Weight Chart</Title>
-						<WeightChart h={400} data={wrestlers as WrestlersResponse<void, WeightClassObject>} startDate={startDate} endDate={endDate} />
+						<HighlightAndZoomLineChart h={400} data={wrestlers as WrestlersResponse<void, WeightClassObject>} startDate={startDate} endDate={endDate} />
 					</Stack>
 				) : null}
 			</Stack>

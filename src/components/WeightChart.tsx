@@ -29,6 +29,7 @@ export default function WeightChart({ h = 400, data, startDate, endDate, chartPr
 
 			const weightClass = FloAPI.findIncludedObjectById(wrestler.attributes.weightClassId, "weightClass", data)?.attributes as WeightClassAttributes;
 			if (weightClass) {
+				console.log(weightClass);
 				const obj = {
 					date: new Date(event.startDateTime).getTime(),
 					"Weight Class Max": weightClass.maxWeight,
@@ -65,7 +66,7 @@ export default function WeightChart({ h = 400, data, startDate, endDate, chartPr
 						)}
 						payload={payload}
 						series={[
-							{ name: "Weight Class Max", color: "blue" },
+							/*{ name: "Weight Class", color: "blue" },*/
 							{ name: "Exact Weight", color: "red" },
 						]}
 						valueFormatter={(v) => v + " lbs"}
@@ -75,7 +76,7 @@ export default function WeightChart({ h = 400, data, startDate, endDate, chartPr
 			}}
 			unit=" lbs"
 			series={[
-				{ name: "Weight Class Max", color: "blue" },
+				/*{ name: "Weight Class Max", color: "blue" },*/
 				{ name: "Exact Weight", color: "red" },
 			]}
 			{...chartProps}
