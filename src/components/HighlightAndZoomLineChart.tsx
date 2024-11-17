@@ -1,6 +1,5 @@
-import React, { PureComponent, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
-  Label,
   LineChart,
   Line,
   CartesianGrid,
@@ -29,32 +28,29 @@ type WeightChartProps = {
 
 export default function HighlightAndZoomLineChart(props: WeightChartProps) {
   const [data, setData] = React.useState<{ date: number, "Weight Class": number, "Exact Weight": number }[]>([]);
-  const [left, setLeft] = React.useState('dataMin');
-  const [right, setRight] = React.useState('dataMax');
-  const [refAreaLeft, setRefAreaLeft] = React.useState("");
-  const [refAreaRight, setRefAreaRight] = React.useState("");
-  const [top, setTop] = React.useState('dataMax+1');
-  const [bottom, setBottom] = React.useState('dataMin-1');
-  const [top2, setTop2] = React.useState('dataMax+20');
-  const [bottom2, setBottom2] = React.useState('dataMin-20');
-  const [animation, setAnimation] = React.useState(true);
+  const [left, setLeft] = React.useState<string | number>('dataMin');
+  const [right, setRight] = React.useState<string | number>('dataMax');
+  const [refAreaLeft, setRefAreaLeft] = React.useState<string | number>("");
+  const [refAreaRight, setRefAreaRight] = React.useState<string | number>("");
+  const [top, setTop] = React.useState<string | number>('dataMax+1');
+  const [bottom, setBottom] = React.useState<string | number>('dataMin-1');
 
   useEffect(() => {
     const result = new Map();
     if (props.data && props.data.data) {
       props.data.data.forEach(wrestler => {
-        const event = FloAPI.findIncludedObjectById(wrestler.attributes.eventId, "event", props.data)?.attributes as EventAttributes;
+        const event = FloAPI.findIncludedObjectById(wrestler.attributes.eventId, "event", props.data as any)?.attributes as EventAttributes;
   
         if (props.startDate && new Date(event.startDateTime) < props.startDate) return;
         if (props.endDate && new Date(event.startDateTime) > props.endDate) return;
   
-        const weightClass = FloAPI.findIncludedObjectById(wrestler.attributes.weightClassId, "weightClass", props.data)?.attributes as WeightClassAttributes;
+        const weightClass = FloAPI.findIncludedObjectById(wrestler.attributes.weightClassId, "weightClass", props.data as any)?.attributes as WeightClassAttributes;
         if (weightClass) {
 
           console.log(weightClass.name, weightClass.maxWeight);
           const obj = {
             date: new Date(event.startDateTime).getTime(),
-            "Weight Class": isNaN(weightClass.name.split(" ")[0]) ? weightClass.maxWeight : parseInt(weightClass.name.split(" ")[0]),
+            "Weight Class": isNaN(weightClass.name.split(" ")[0] as any) ? weightClass.maxWeight : parseInt(weightClass.name.split(" ")[0]),
             "Exact Weight": (wrestler.attributes.exactWeight ?? parseInt(weightClass.name.split(" ")[0])) || weightClass.maxWeight,
             event: event.name,
           };
@@ -66,13 +62,13 @@ export default function HighlightAndZoomLineChart(props: WeightChartProps) {
     zoomOut();
 	}, [props.data, props.startDate, props.endDate]);
 
-  const getAxisYDomain = (from, to, ref, offset) => {
+  const getAxisYDomain = (from: number, to: number, ref: string, offset: number) => {
     from = data.findIndex(e => e.date === from);
     to = data.findIndex(e => e.date === to);
     const refData = data.slice(from, to);
     console.log(refData);
-    let [bottom, top] = [refData[0][ref], refData[0][ref]];
-    refData.forEach((d) => {
+    let [bottom, top] = [(refData[0] as any)[ref], (refData[0] as any)[ref]];
+    refData.forEach((d: any) => {
       if (d[ref] > top) top = d[ref];
       if (d[ref] < bottom) bottom = d[ref];
     });
@@ -103,7 +99,7 @@ export default function HighlightAndZoomLineChart(props: WeightChartProps) {
     }
 
     // yAxis domain
-    const [bottom, top] = getAxisYDomain(left, right, "Exact Weight", 1);
+    const [bottom, top] = getAxisYDomain(left as number, right as number, "Exact Weight", 1);
     //const [bottom2, top2] = getAxisYDomain(refAreaLeft, refAreaRight, "Weight Class", 50);
     console.log(bottom, top);
 
@@ -124,8 +120,6 @@ export default function HighlightAndZoomLineChart(props: WeightChartProps) {
     setRight('dataMax');
     setTop('dataMax+1');
     setBottom('dataMin');
-    setTop2('dataMax+50');
-    setBottom2('dataMin+50');
     setBottom(Math.min(...data.map(d => d["Weight Class"])) - 10);
     setTop(Math.max(...data.map(d => d["Weight Class"])) + 10);
   }
@@ -141,8 +135,8 @@ export default function HighlightAndZoomLineChart(props: WeightChartProps) {
           width={800}
           height={400}
           data={data}
-          onMouseDown={(e) => setRefAreaLeft(e.activeLabel)}
-          onMouseMove={(e) => refAreaLeft && setRefAreaRight(e.activeLabel)}
+          onMouseDown={(e) => setRefAreaLeft(e.activeLabel as any as number)}
+          onMouseMove={(e) => refAreaLeft && setRefAreaRight(e.activeLabel as any as number)}
           // eslint-disable-next-line react/jsx-no-bind
           onMouseUp={() => zoom()}
         >
@@ -163,7 +157,7 @@ export default function HighlightAndZoomLineChart(props: WeightChartProps) {
                   /*{ name: "Weight Class", color: "blue" },*/
                   { name: "Exact Weight", color: "red" },
                 ]}
-                valueFormatter={(v) => v + " lbs"}
+                valueFormatter={(v: string) => v + " lbs"}
                 showColor={true}
               />
             )) as ContentType<string, string>
