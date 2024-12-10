@@ -5,7 +5,7 @@ import "@mantine/dates/styles.css";
 import "@mantine/nprogress/styles.css";
 
 import React from "react";
-import { Button, Group, MantineProvider, Stack, TextInput, Title } from "@mantine/core";
+import { Button, CloseButtonProps, Group, MantineProvider, Stack, TableData, TextInput, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { DateInput } from "@mantine/dates";
 import { nprogress, NavigationProgress } from "@mantine/nprogress";
@@ -20,6 +20,8 @@ import { BoutsIncludeAll, FloObject, NonNullableFields, WrestlersIncludeAll } fr
 import { WeightClassObject } from "./api/types/objects/weightClass";
 import { BoutObject } from "./api/types/objects/bout";
 import HighlightAndZoomLineChart from "./components/HighlightAndZoomLineChart";
+
+import { IconReload } from "@tabler/icons-react";
 
 const ID_REGEX = new RegExp("[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}"); // UUID v4
 
@@ -40,18 +42,23 @@ function App() {
 	const [wrestlers, setWrestlers] = React.useState<WrestlersResponse<void, Exclude<FloObject, WrestlerObject>> | null>(null);
 	const [bouts, setBouts] = React.useState<BoutsResponse<void, Exclude<FloObject, BoutObject>> | null>(null);
 
+	const [boutTables, setBoutTables] = React.useState<Record<string, TableData>>({});
+
+	const [oldestBout, setOldestBout] = React.useState<Date | undefined>(undefined);
+	const [newestBout, setNewestBout] = React.useState<Date | undefined>(undefined);
+
 	const [, setAthleteId] = React.useState<string | null>(null);
 
 	const [startDate, setStartDate] = React.useState<Date | null>(null);
 	const [endDate, setEndDate] = React.useState<Date | null>(null);
 
 	React.useEffect(() => {
-		if (inputValue) setInputError(false);
-	}, [inputValue]);
+		if (inputValue || inputFocused) setInputError(false);
+	}, [inputValue, inputFocused]);
 
 	React.useEffect(() => {
 		if (inputFocused) setInputError(false);
-	}, [inputFocused]);
+	}, [bouts]);
 
 	React.useEffect(() => {
 		document.addEventListener("keypress", e => {
@@ -107,24 +114,28 @@ function App() {
 
 		try {
 			const start = performance.now();
+			// Fetch all wrestler instances for athlete ID
 			const wrestlersResponse = await FloAPI.fetchWrestlersByAthleteId<void, Exclude<FloObject, WrestlerObject>>(athleteId, {
 				pageSize: 0,
 				pageOffset: 0,
 				onProgress: p => setDownloadProgress(p / 2),
 			}, WrestlersIncludeAll);
 
+			// Sort wrestler instances by event start date
 			wrestlersResponse.data = wrestlersResponse.data.sort((a, b) => {
 				return new Date((FloAPI.findIncludedObjectById<EventObject>(a.attributes.eventId, "event", wrestlersResponse)?.attributes as EventAttributes).startDateTime).getTime() - new Date((FloAPI.findIncludedObjectById(b.attributes.eventId, "event", wrestlersResponse)?.attributes as EventAttributes).startDateTime).getTime();
 			});
 
 			setWrestlers(wrestlersResponse);
 
+			// Merge all recent wrestler data into one instance
 			const everything = Object.assign({}, ...(wrestlersResponse.data.map(wrestler => { // Merge all wrestler data into one object
 				return Object.fromEntries(Object.entries(wrestler.attributes).filter(([, v]) => v !== null)) as NonNullableFields<WrestlerAttributes>; // Remove null values
 			}))) as NonNullableFields<WrestlerAttributes>;
 
 			console.log(everything);
 
+			// Fetch all bouts of athlete ID
 			const boutsResponse = await FloAPI.fetchBouts<void, Exclude<FloObject, BoutObject>>(athleteId, {
 				pageSize: 0,
 				pageOffset: 0,
@@ -132,6 +143,20 @@ function App() {
 			}, BoutsIncludeAll);
 
 			setBouts(boutsResponse);
+
+			window["bouts"] = boutsResponse;
+
+			if (boutsResponse) {
+				const oldest = boutsResponse.data.map(bout => new Date(bout.attributes.endDateTime ?? bout.attributes.goDateTime ?? Date.now())).reduce((a, b) => a < b ? a : b)
+				const newest = boutsResponse.data.map(bout => new Date(bout.attributes.endDateTime ?? bout.attributes.goDateTime ?? Date.now())).reduce((a, b) => a > b ? a : b)
+				setOldestBout(oldest);
+				setNewestBout(newest);
+
+				setStartDate(oldest);
+				setEndDate(newest);
+
+				console.log(`Oldest bout: ${oldest}, Newest bout: ${newest}`);
+			}
 
 			console.log(((performance.now() - start) / 1000).toFixed(2) + "s");
 
@@ -184,21 +209,29 @@ function App() {
 						label="Filter Start Date"
 						placeholder="Pick date"
 						value={startDate}
+						minDate={oldestBout}
+						maxDate={newestBout}
+						clearable
+						clearButtonProps={{ onClick: () => oldestBout ? setStartDate(oldestBout): {}, icon: <IconReload size={16} />  } as CloseButtonProps as any}
 						onChange={setStartDate}
 					/>
 					<DateInput
 						label="Filter End Date"
 						placeholder="Pick date"
 						value={endDate}
+						minDate={oldestBout}
+						maxDate={newestBout}
+						clearable
+						clearButtonProps={{ onClick: () => newestBout ? setEndDate(newestBout): {}, icon: <IconReload size={16} />  } as CloseButtonProps as any}
 						onChange={setEndDate}
 					/>
 				</Group>
-				{wrestlers ? (
+				{/*wrestlers ? (
 					<Stack>
 						<Title order={2}>Weight Chart</Title>
 						<HighlightAndZoomLineChart h={400} data={wrestlers as WrestlersResponse<void, WeightClassObject>} startDate={startDate} endDate={endDate} />
 					</Stack>
-				) : null}
+				) : null*/}
 			</Stack>
 		</MantineProvider>
 	);

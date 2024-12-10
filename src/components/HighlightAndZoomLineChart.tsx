@@ -47,7 +47,7 @@ export default function HighlightAndZoomLineChart(props: WeightChartProps) {
         const weightClass = FloAPI.findIncludedObjectById(wrestler.attributes.weightClassId, "weightClass", props.data as any)?.attributes as WeightClassAttributes;
         if (weightClass) {
 
-          console.log(weightClass.name, weightClass.maxWeight);
+          //console.log(weightClass.name, weightClass.maxWeight);
           const obj = {
             date: new Date(event.startDateTime).getTime(),
             "Weight Class": isNaN(weightClass.name.split(" ")[0] as any) ? weightClass.maxWeight : parseInt(weightClass.name.split(" ")[0]),
