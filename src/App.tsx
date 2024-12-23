@@ -22,6 +22,7 @@ import { BoutObject } from "./api/types/objects/bout";
 import HighlightAndZoomLineChart from "./components/HighlightAndZoomLineChart";
 
 import { IconReload } from "@tabler/icons-react";
+import MatchesTable from "./components/MatchesTable";
 
 const ID_REGEX = new RegExp("[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}"); // UUID v4
 
@@ -47,7 +48,7 @@ function App() {
 	const [oldestBout, setOldestBout] = React.useState<Date | undefined>(undefined);
 	const [newestBout, setNewestBout] = React.useState<Date | undefined>(undefined);
 
-	const [, setAthleteId] = React.useState<string | null>(null);
+	const [athleteId, setAthleteId] = React.useState<string | null>(null);
 
 	const [startDate, setStartDate] = React.useState<Date | null>(null);
 	const [endDate, setEndDate] = React.useState<Date | null>(null);
@@ -212,7 +213,7 @@ function App() {
 						minDate={oldestBout}
 						maxDate={newestBout}
 						clearable
-						clearButtonProps={{ onClick: () => oldestBout ? setStartDate(oldestBout): {}, icon: <IconReload size={16} />  } as CloseButtonProps as any}
+						clearButtonProps={{ onClick: () => oldestBout ? setStartDate(oldestBout): {}, icon: <IconReload size={16} />  } as CloseButtonProps as never}
 						onChange={setStartDate}
 					/>
 					<DateInput
@@ -222,10 +223,13 @@ function App() {
 						minDate={oldestBout}
 						maxDate={newestBout}
 						clearable
-						clearButtonProps={{ onClick: () => newestBout ? setEndDate(newestBout): {}, icon: <IconReload size={16} />  } as CloseButtonProps as any}
+						clearButtonProps={{ onClick: () => newestBout ? setEndDate(newestBout): {}, icon: <IconReload size={16} />  } as CloseButtonProps as never}
 						onChange={setEndDate}
 					/>
 				</Group>
+				{wrestlers && athleteId ? (
+					<MatchesTable athleteId={athleteId} bouts={bouts} />
+				) : null}
 				{/*wrestlers ? (
 					<Stack>
 						<Title order={2}>Weight Chart</Title>
