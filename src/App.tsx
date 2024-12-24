@@ -1,9 +1,3 @@
-import "./App.css";
-import "@mantine/core/styles.css";
-import "@mantine/charts/styles.css";
-import "@mantine/dates/styles.css";
-import "@mantine/nprogress/styles.css";
-
 import React from "react";
 import { Button, CloseButtonProps, Group, MantineProvider, Stack, TableData, TextInput, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -23,11 +17,16 @@ import HighlightAndZoomLineChart from "./components/HighlightAndZoomLineChart";
 
 import { IconReload } from "@tabler/icons-react";
 import MatchesTable from "./components/MatchesTable";
-
-const ID_REGEX = new RegExp("[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}"); // UUID v4
+import { AllBoutRelationships } from "./api/types/relationships";
+import { useLocation, useParams } from "react-router";
+import { ID_REGEX } from "./main";
 
 function App() {
 	const searchButtonRef = React.useRef<HTMLButtonElement>(null);
+
+	const { id } = useParams();
+	const location = useLocation();
+	const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
 
 	const [inputFocused, setInputFocused] = React.useState<boolean>(false);
 	const [inputValue, setInputValue] = React.useState<string>("");
@@ -41,7 +40,7 @@ function App() {
 	const [loading, { open: startLoading, close: stopLoading }] = useDisclosure();
 
 	const [wrestlers, setWrestlers] = React.useState<WrestlersResponse<void, Exclude<FloObject, WrestlerObject>> | null>(null);
-	const [bouts, setBouts] = React.useState<BoutsResponse<void, Exclude<FloObject, BoutObject>> | null>(null);
+	const [bouts, setBouts] = React.useState<BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>> | null>(null);
 
 	const [boutTables, setBoutTables] = React.useState<Record<string, TableData>>({});
 
@@ -54,17 +53,10 @@ function App() {
 	const [endDate, setEndDate] = React.useState<Date | null>(null);
 
 	React.useEffect(() => {
-		if (inputValue || inputFocused) setInputError(false);
-	}, [inputValue, inputFocused]);
-
-	React.useEffect(() => {
-		if (inputFocused) setInputError(false);
-	}, [bouts]);
-
-	React.useEffect(() => {
-		document.addEventListener("keypress", e => {
-			if (e.key === "Enter" && inputFocused) searchButtonRef.current?.click();
-		});
+		if (!isLoaded) {
+			setIsLoaded(true);
+			if (id) downloadData(id);
+		}
 	});
 
 	React.useEffect(() => {
@@ -107,6 +99,8 @@ function App() {
 	const downloadData = async (athleteId: string) => {
 		if (loading) return;
 
+		closeSearchModal();
+
 		console.log(`Downloading data for ID: ${athleteId}`);
 
 		setAthleteId(athleteId);
@@ -137,7 +131,7 @@ function App() {
 			console.log(everything);
 
 			// Fetch all bouts of athlete ID
-			const boutsResponse = await FloAPI.fetchBouts<void, Exclude<FloObject, BoutObject>>(athleteId, {
+			const boutsResponse = await FloAPI.fetchBouts<AllBoutRelationships, Exclude<FloObject, BoutObject>>(athleteId, {
 				pageSize: 0,
 				pageOffset: 0,
 				onProgress: p => setDownloadProgress(p / 2 + 50),
@@ -167,7 +161,6 @@ function App() {
 		}
 
 		stopLoading();
-		closeSearchModal();
 	};
 
 	return (
@@ -175,36 +168,6 @@ function App() {
 			<NavigationProgress />
 			<SearchModal searchTerm={inputValue} opened={searchModalOpened} results={searchResults} select={id => void downloadData(id)} close={closeSearchModal}/>
 			<Stack>
-				<Group justify="center">
-					<TextInput
-						value={inputValue}
-						name="wrestler-search"
-						onChange={e => setInputValue(e.currentTarget.value)}
-						placeholder="Enter name or ID..."
-						error={inputError}
-						onFocus={() => setInputFocused(true)}
-						onBlur={() => setInputFocused(false)}
-						size="md"
-					/>
-					<Button
-						variant="default"
-						loading={loading}
-						onClick={() => {
-							if (!inputValue) {
-								setInputError(true);
-							} else {
-								const test = ID_REGEX.exec(inputValue);
-								if (!test) {
-									void searchFor(inputValue);
-								} else {
-									void downloadData(test[0]);
-								}
-							}
-						}}
-						ref={searchButtonRef}
-						size="md"
-					>Search</Button>
-				</Group>
 				<Group justify="center">
 					<DateInput
 						label="Filter Start Date"
@@ -228,7 +191,7 @@ function App() {
 					/>
 				</Group>
 				{wrestlers && athleteId ? (
-					<MatchesTable athleteId={athleteId} bouts={bouts} />
+					<MatchesTable athleteId={athleteId} bouts={bouts} startDate={startDate} endDate={endDate} />
 				) : null}
 				{/*wrestlers ? (
 					<Stack>

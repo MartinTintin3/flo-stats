@@ -21,3 +21,5 @@ export type GradeRelationship = { grade: { data: GradeIdentifier } };
 export type DivisionRelationship = { division: { data: DivisionIdentifier } };
 export type BoutRelationship = { bout: { data: BoutIdentifier } };
 export type EventRelationship = { event: { data: EventIdentifier } };
+
+export type AllBoutRelationships = TopWrestlerRelationship & BottomWrestlerRelationship & WeightClassRelationship & RoundNameRelationship & EventRelationship;

@@ -1,6 +1,7 @@
 import { Button, Flex, Modal, ScrollArea, Text, Title } from "@mantine/core";
 import { SearchResults } from "../api/types/responses";
 import dayjs from "dayjs";
+import { useSearchParams } from "react-router";
 
 type SearchModalProps = {
 	searchTerm: string;
@@ -11,6 +12,8 @@ type SearchModalProps = {
 };
 
 export default function SearchModal({ searchTerm, results, opened, close, select }: SearchModalProps) {
+	const [searchParams] = useSearchParams();
+
 	return (
 		<Modal
 			opened={opened}

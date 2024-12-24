@@ -10,7 +10,7 @@ export type WrestlerAttributes = {
 	exactWeight: number;
 	firstName: string;
 	fullName: string;
-	lastname: string;
+	lastName: string;
 	grade: GradeObject;
 	gradeId: UUID | null;
 	createdByUserId: string;
