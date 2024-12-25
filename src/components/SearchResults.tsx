@@ -116,7 +116,7 @@ export default function SearchResultsPage() {
 									<Group align={"end"}><Title order={3}>{result.name}</Title><Text c="dimmed">ID: {result.arena_person_identity_id}</Text></Group>
 									{result.location ?
 										<Group>
-											<p>{result.location.name} ({[result.location.city, result.location.state].filter(v => v).join(", ")})</p> <Text c="dimmed">{result.location.google_place_id}</Text>
+											<p>{result.location.name} ({[result.location.city, result.location.state].filter(v => v).join(", ")})</p>
 										</Group>
 									: <Text c="dimmed">No location data</Text>}
 									<Text><Text span fw={600}>HS Graduation:</Text> {result.high_school_grad_year}</Text>
@@ -134,7 +134,7 @@ export default function SearchResultsPage() {
 				<p>No results found</p>
 			): (
 				[...Array(PAGE_SIZE)].map((_, i) => (
-					<Skeleton key={i} height={140} style={{ marginBottom: "1rem" }} />
+					<Skeleton key={i} style={{ marginBottom: "1rem" }} />
 				))
 			)}
 		</div>

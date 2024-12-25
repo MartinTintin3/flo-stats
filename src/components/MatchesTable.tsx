@@ -32,7 +32,6 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 				<Table.Tr>
 					<Table.Th className={styles.stickyMatch1} w="5rem" bg={"var(--mantine-color-body)"}>Date</Table.Th>
 					<Table.Th className={styles.stickyMatch2} w="3rem" bg={"var(--mantine-color-body)"} styles={{ th: {
-						boxShadow: "42px 108px 5px 0px var(--table-border-color)",
 					}}}>W/L</Table.Th>
 					<Table.Th className={styles.scrollableMatch}>Win Type</Table.Th>
 					<Table.Th className={styles.scrollableMatch}>Result</Table.Th>
