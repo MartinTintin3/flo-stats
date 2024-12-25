@@ -37,6 +37,9 @@ export type SearchResultPerson = {
 		created_at: DateTime;
 		modified_at: DateTime;
 	};
+	node: {
+		id: number;
+	};
 	asset_url: string;
 	birth_date: string | null;
 	created_at: string;
@@ -89,5 +92,17 @@ export type SearchResults = {
 		source: string;
 		total: number;
 		type: string;
+		extra: [
+			{
+				response: {
+					ids: {
+						person: string[];
+					},
+					sortSeq: {
+						[personId: string]: number;
+					}
+				}
+			}
+		]
 	}
 }

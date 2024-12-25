@@ -12,8 +12,10 @@ import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/nprogress/styles.css";
+import '@mantine/carousel/styles.css';
+
+
 import SearchResultsPage from "./components/SearchResults.tsx";
-import { IconMoon, IconSun } from "@tabler/icons-react";
 import ThemeToggle from "./components/ThemeToggle.tsx";
 
 export const ID_REGEX = new RegExp("[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}"); // UUID v4
@@ -51,7 +53,8 @@ ReactDOM.createRoot(root!).render(
 					margin: "2rem",
 				} }} size="lg" />
 				<Routes>
-					<Route path="/athlete/:id" element={<App />} />
+					<Route path="/" element={<></>} />
+					<Route path="/athletes/:id" element={<App />} />
 					<Route path="/search" element={<SearchResultsPage />} />
 				</Routes>
 			</BrowserRouter>

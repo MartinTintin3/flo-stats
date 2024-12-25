@@ -8,6 +8,10 @@ import { WrestlerObject } from "../api/types/objects/wrestler";
 import dayjs from "dayjs";
 import { EventObject } from "../api/types/objects/event";
 import { AllBoutRelationships } from "../api/types/relationships";
+import { data, Link } from "react-router";
+import { RoundNameObject } from "../api/types/objects/roundName";
+import { WeightClassObject } from "../api/types/objects/weightClass";
+import { DivisionObject } from "../api/types/objects/division";
 
 type MatchesTableProps = {
 	athleteId: string;
@@ -17,7 +21,7 @@ type MatchesTableProps = {
 }
 
 export default function MatchesTable({ athleteId, bouts, startDate, endDate }: MatchesTableProps) {
-	const [processed, setProcessed] = React.useState<{
+	/*const [processed, setProcessed] = React.useState<{
 		won: boolean,
 		date: number,
 	}[]>();
@@ -31,12 +35,14 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 				date: Date.now(),
 			};
 		}));
-	}, [bouts]);
+	}, [bouts]);*/
 
 	return (
 		<Table styles={{ th: { textAlign: "center" } }}>
 			<Table.Thead>
-				{["Date", "W/L", "Wintype", "", "Opponent", "Round", "Weight"].map(h => <Table.Th>{h}</Table.Th>)}
+				<Table.Tr>
+					{["Date", "W/L", "Wintype", "", "Opponent", "Event", "Round", "Weight"].map(heading => <Table.Th key={heading}>{heading}</Table.Th>)}
+				</Table.Tr>
 			</Table.Thead>
 			<Table.Tbody>
 				{bouts?.data.filter(bout => {
@@ -61,15 +67,28 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 					const opponent = topWrestler?.attributes.identityPersonId == athleteId ? bottomWrestler : topWrestler;
 					const thisWrestler = topWrestler?.attributes.identityPersonId == athleteId ? topWrestler : bottomWrestler;
 
-					console.log(opponent?.attributes);
-
+					const weightClass = FloAPI.findIncludedObjectById<WeightClassObject>(bout.attributes.weightClassId, "weightClass", bouts);
+					const roundName = FloAPI.findIncludedObjectById<RoundNameObject>(bout.attributes.roundNameId, "roundName", bouts);
+					const event = FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", bouts);
+					const division = thisWrestler ? FloAPI.findIncludedObjectById<DivisionObject>(thisWrestler?.attributes.divisionId, "division", bouts) : undefined;
 					return (
-						<Table.Tr>
+						<Table.Tr key={bout.id}>
 							<Table.Td>{date.format("M/D/YY")}</Table.Td>
-							<Table.Td>{isAWin ? "W" : "L"}</Table.Td>
+							<Table.Td c={isAWin ? "green" : "red"}>{isAWin ? "W" : "L"}</Table.Td>
 							<Table.Td>{bout.attributes.result}</Table.Td>
 							<Table.Td>{bout.attributes.winType}</Table.Td>
-							<Table.Td>{opponent?.attributes.firstName} {opponent?.attributes.lastName}</Table.Td>
+							<Table.Td>
+								<Link to={`/athletes/${opponent?.attributes.identityPersonId}`} style={{ textDecoration: "none" }}>
+									{opponent?.attributes.firstName} {opponent?.attributes.lastName}
+								</Link>
+							</Table.Td>
+							<Table.Td>
+								<Link to={`https://arena.flowrestling.org/event/${event?.id}`} target="__blank" style={{ textDecoration: "none" }}>
+									{event?.attributes.name}
+								</Link>
+							</Table.Td>
+							<Table.Td>{roundName?.attributes.displayName}</Table.Td>
+							<Table.Td>{weightClass?.attributes.name} {division?.attributes.measurementUnit}</Table.Td>
 						</Table.Tr>
 					)
 				})}

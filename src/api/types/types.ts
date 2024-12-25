@@ -1,4 +1,5 @@
 import { BoutObject } from "./objects/bout";
+import { BracketPlacementObject } from "./objects/bracketPlacement";
 import { DivisionObject } from "./objects/division";
 import { EventObject } from "./objects/event";
 import { GradeObject } from "./objects/grade";
@@ -19,9 +20,9 @@ export type FloBaseObject<Identifier, Attributes> = Identifier & {
 	attributes: Attributes;
 }
 
-export type FloObject = BoutObject | DivisionObject | EventObject | GradeObject | RoundNameObject | TeamObject | WeightClassObject | WrestlerObject;
+export type FloObject = BoutObject | DivisionObject | EventObject | GradeObject | RoundNameObject | TeamObject | WeightClassObject | WrestlerObject | BracketPlacementObject;
 
-export type FloObjectTypeString = "bout" | "division" | "event" | "grade" | "roundName" | "team" | "weightClass" | "wrestler";
+export type FloObjectTypeString = "bout" | "division" | "event" | "grade" | "roundName" | "team" | "weightClass" | "wrestler" | "bracketPlacement";
 
 export type Nothing = Record<string, never>;
 

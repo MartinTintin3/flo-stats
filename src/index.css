@@ -26,3 +26,11 @@ body {
 	padding: 2rem;
 	text-align: center;
 }
+
+a {
+	color: var(--mantine-primary-color-3);
+}
+
+a:hover {
+	color: var(--mantine-primary-color-5);
+}

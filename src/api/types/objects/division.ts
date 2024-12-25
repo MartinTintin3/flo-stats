@@ -17,7 +17,7 @@ export type DivisionAttributes = {
 	isVarsity: boolean;
 	maskSeeds: boolean;
 	maxPerBracket: number;
-	measurementUnits: "lbs";
+	measurementUnit: "lbs";
 	modifiedByUserId: string;
 	modifiedDateTimeUtc: DateTime;
 	name: string;

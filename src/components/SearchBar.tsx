@@ -31,13 +31,15 @@ export default function SearchBar({ loading }: Props) {
 					searchButtonRef.current?.click();
 				}
 			});
-
-			if (inputError && inputFocused) setInputError(false);
 		}
 	});
 
+	React.useEffect(() => {
+		if (inputError && inputFocused) setInputError(false);
+	}, [inputFocused]);
+
 	return (
-		<Group justify="center">
+		<Group justify="center" mb="xl">
 			<TextInput
 				value={inputValue}
 				name="wrestler-search"
@@ -61,7 +63,7 @@ export default function SearchBar({ loading }: Props) {
 							navigate(`/search?q=${inputValue}`);
 						} else {
 							// void downloadData(test[0]);
-							navigate(`/athlete/${test[0]}`);
+							navigate(`/athletes/${test[0]}`);
 						}
 					}
 				}}

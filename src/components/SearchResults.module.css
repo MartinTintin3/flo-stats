@@ -6,11 +6,11 @@
 	}
 }
 
-a {
+a.resultLink {
 	color: var(--mantine-color-text);
 	text-decoration: none;
 }
 
-a:active {
+a.resultLink:active {
 	color: var(--mantine-color-dimmed);
 }

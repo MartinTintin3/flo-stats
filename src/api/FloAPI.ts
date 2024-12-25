@@ -1,11 +1,8 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-
 import { BaseResponse, BoutsResponse, SearchResults, WrestlersResponse } from "./types/responses";
 import { BoutsIncludeString, FloObject, FloObjectTypeString, UUID, WrestlersIncludeString } from "./types/types";
 import { Relationship, RelationshipToBout, RelationshipToWrestler } from "./types/relationships";
 import { WrestlerObject } from "./types/objects/wrestler";
 import { BoutObject } from "./types/objects/bout";
-import { EventObject } from "./types/objects/event";
 
 export type FetchConfig = {
 	pageSize: number;
@@ -14,8 +11,8 @@ export type FetchConfig = {
 }
 
 export default class FloAPI {
-	public static searchByName(name: string, { limit, page, onProgress }: { limit: number, page: number, onProgress: (v: number) => void }): Promise<SearchResults> {
-		return this.fetchWithProgress<SearchResults>(`https://api.flowrestling.org/api/experiences/web/legacy-core/search?site_id=2&version=1.24.0&limit=${limit}&view=global-search-web&fields=data%3C1%3E&q=${encodeURIComponent(name)}&page=${page}&type=person`, onProgress);
+	public static searchByName(name: string, { limit, page, onProgress, useOfp }: { limit: number, page: number, onProgress: (v: number) => void, useOfp?: boolean }): Promise<SearchResults> {
+		return this.fetchWithProgress<SearchResults>(`https://api.flowrestling.org/api/experiences/web/legacy-core/search?site_id=2&version=1.33.2&limit=${limit}&view=global-search-web&fields=data%3C1%3E&q=${encodeURIComponent(name)}&page=${page}&type=person` + (useOfp ? "&useOfp=true" : ""), onProgress);
 	}
 
 	public static fetchWithProgress<T>(url: string, onProgress?: (progress: number) => void): Promise<T> {
@@ -39,7 +36,7 @@ export default class FloAPI {
 	}
 
 	public static fetchWrestlersByAthleteId<R extends RelationshipToWrestler | void, I extends Exclude<FloObject, WrestlerObject> | void>(athleteId: UUID, config: FetchConfig, include: readonly WrestlersIncludeString[] = ["bracketPlacements.weightClass", "division", "event", "weightClass", "team"], extra?: string): Promise<WrestlersResponse<R, I>> {
-		return this.fetchWithProgressTyped<WrestlerObject, R, I>(`https://floarena-api.flowrestling.org/wrestlers/?identityPersonId=${athleteId}&page[size]=${config.pageSize}&page[offset]=${config.pageOffset}` + (include.length ? `&include=${include.join(",")}` : "") + (extra ?? ""), config.onProgress);
+		return this.fetchWithProgressTyped<WrestlerObject, R, I>(`https://floarena-api.flowrestling.org/wrestlers/?identityPersonId=${athleteId}&orderBy=eventEndDateTime&orderDirection=desc&page[size]=${config.pageSize}&page[offset]=${config.pageOffset}` + (include.length ? `&include=${include.join(",")}` : "") + (extra ?? ""), config.onProgress);
 	}
 
 	public static fetchBouts<R extends RelationshipToBout | void, I extends Exclude<FloObject, BoutObject> | void>(athleteId: UUID, config: FetchConfig, include: readonly BoutsIncludeString[] = ["bottomWrestler.team", "topWrestler.team", "weightClass", "topWrestler.division", "bottomWrestler.division", "event","roundName"], extra?: string): Promise<BoutsResponse<R, I>> {

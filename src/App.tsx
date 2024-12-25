@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, CloseButtonProps, Group, MantineProvider, Stack, TableData, TextInput, Title } from "@mantine/core";
+import { Button, CloseButtonProps, Group, MantineProvider, Overlay, Stack, TableData, Tabs, TextInput, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { DateInput } from "@mantine/dates";
 import { nprogress, NavigationProgress } from "@mantine/nprogress";
@@ -17,109 +17,70 @@ import HighlightAndZoomLineChart from "./components/HighlightAndZoomLineChart";
 
 import { IconReload } from "@tabler/icons-react";
 import MatchesTable from "./components/MatchesTable";
-import { AllBoutRelationships } from "./api/types/relationships";
+import { AllBoutRelationships, AllWrestlerRelationships } from "./api/types/relationships";
 import { useLocation, useParams } from "react-router";
 import { ID_REGEX } from "./main";
 
+import { Carousel, Embla } from "@mantine/carousel";
+
+import styles from "./App.module.css";
+import CarouselFloatingIndicators from "./components/CarouselFloatingIndicators";
+import PlacementsDisplay from "./components/PlacementsDisplay";
+
 function App() {
-	const searchButtonRef = React.useRef<HTMLButtonElement>(null);
-
 	const { id } = useParams();
-	const location = useLocation();
-	const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
 
-	const [inputFocused, setInputFocused] = React.useState<boolean>(false);
-	const [inputValue, setInputValue] = React.useState<string>("");
-	const [inputError, setInputError] = React.useState<boolean>(false);
+	const [downloading, setDownloading] = React.useState<boolean>(false);
 
-	const [downloadProgress, setDownloadProgress] = React.useState<number | null>(null); // from 0 to 100
-
-	const [searchResults, setSearchResults] = React.useState<SearchResults | null>(null);
-
-	const [searchModalOpened, { open: openSearchModal, close: closeSearchModal }] = useDisclosure();
-	const [loading, { open: startLoading, close: stopLoading }] = useDisclosure();
-
-	const [wrestlers, setWrestlers] = React.useState<WrestlersResponse<void, Exclude<FloObject, WrestlerObject>> | null>(null);
+	const [wrestlers, setWrestlers] = React.useState<WrestlersResponse<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>> | null>(null);
 	const [bouts, setBouts] = React.useState<BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>> | null>(null);
-
-	const [boutTables, setBoutTables] = React.useState<Record<string, TableData>>({});
 
 	const [oldestBout, setOldestBout] = React.useState<Date | undefined>(undefined);
 	const [newestBout, setNewestBout] = React.useState<Date | undefined>(undefined);
+
+	const [downloadingFor, setDownloadingFor] = React.useState<string | null>(null);
 
 	const [athleteId, setAthleteId] = React.useState<string | null>(null);
 
 	const [startDate, setStartDate] = React.useState<Date | null>(null);
 	const [endDate, setEndDate] = React.useState<Date | null>(null);
 
-	React.useEffect(() => {
-		if (!isLoaded) {
-			setIsLoaded(true);
-			if (id) downloadData(id);
-		}
-	});
+	const [embla, setEmbla] = React.useState<Embla | null>(null);
+	const [activeTab, setActiveTab] = React.useState<number>(0);
 
 	React.useEffect(() => {
-		if (downloadProgress == 100) {
-			nprogress.complete();
-		} else if (downloadProgress !== null) {
-			nprogress.set(downloadProgress);
-		} else {
-			nprogress.reset();
+		if (athleteId !== id && id) {
+			downloadData(id);
 		}
-	}, [downloadProgress]);
+	}, [id]);
 
-	const searchFor = async (name: string) => {
-		if (loading) return;
+	React.useEffect(() => {
+		if (embla) {
+			embla.on("scroll", () => {
+				setActiveTab(embla.selectedScrollSnap());
+			});
+		}
+	}, [embla]);
 
-		console.log(`Searching for name: ${name}`);
 
-		startLoading();
+	const downloadData = async (i: string) => {
+		if (i == athleteId || i == downloadingFor) return;
+		console.log(i, athleteId, downloadingFor);
 
-		setDownloadProgress(0);
-
-		const req = await FloAPI.searchByName(name, {
-			onDownloadProgress: e => {
-				if (e.lengthComputable && e.total) {
-					setDownloadProgress(e.loaded / e.total * 100);
-				}
-			},
-		});
-
-		setDownloadProgress(100);
-
-		setSearchResults(req.data);
-		openSearchModal();
-
-		openSearchModal();
-
-		stopLoading();
-	};
-
-	const downloadData = async (athleteId: string) => {
-		if (loading) return;
-
-		closeSearchModal();
-
-		console.log(`Downloading data for ID: ${athleteId}`);
-
-		setAthleteId(athleteId);
-
-		startLoading();
+		setDownloadingFor(i);
+		setDownloading(true);
 
 		try {
 			const start = performance.now();
+			nprogress.start();
 			// Fetch all wrestler instances for athlete ID
-			const wrestlersResponse = await FloAPI.fetchWrestlersByAthleteId<void, Exclude<FloObject, WrestlerObject>>(athleteId, {
+			const wrestlersResponse = await FloAPI.fetchWrestlersByAthleteId<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>(i, {
 				pageSize: 0,
 				pageOffset: 0,
-				onProgress: p => setDownloadProgress(p / 2),
+				onProgress: p => nprogress.set(p / 2),
 			}, WrestlersIncludeAll);
 
-			// Sort wrestler instances by event start date
-			wrestlersResponse.data = wrestlersResponse.data.sort((a, b) => {
-				return new Date((FloAPI.findIncludedObjectById<EventObject>(a.attributes.eventId, "event", wrestlersResponse)?.attributes as EventAttributes).startDateTime).getTime() - new Date((FloAPI.findIncludedObjectById(b.attributes.eventId, "event", wrestlersResponse)?.attributes as EventAttributes).startDateTime).getTime();
-			});
+			nprogress.set(50);
 
 			setWrestlers(wrestlersResponse);
 
@@ -128,16 +89,17 @@ function App() {
 				return Object.fromEntries(Object.entries(wrestler.attributes).filter(([, v]) => v !== null)) as NonNullableFields<WrestlerAttributes>; // Remove null values
 			}))) as NonNullableFields<WrestlerAttributes>;
 
-			console.log(everything);
-
 			// Fetch all bouts of athlete ID
-			const boutsResponse = await FloAPI.fetchBouts<AllBoutRelationships, Exclude<FloObject, BoutObject>>(athleteId, {
+			const boutsResponse = await FloAPI.fetchBouts<AllBoutRelationships, Exclude<FloObject, BoutObject>>(i, {
 				pageSize: 0,
 				pageOffset: 0,
-				onProgress: p => setDownloadProgress(p / 2 + 50),
+				onProgress: p => nprogress.set(p / 2 + 50),
 			}, BoutsIncludeAll);
 
 			setBouts(boutsResponse);
+
+			setAthleteId(i);
+			setDownloading(false);
 
 			window["bouts"] = boutsResponse;
 
@@ -153,20 +115,16 @@ function App() {
 				console.log(`Oldest bout: ${oldest}, Newest bout: ${newest}`);
 			}
 
-			console.log(((performance.now() - start) / 1000).toFixed(2) + "s");
+			nprogress.complete();
 
-			console.log(wrestlers, bouts);
+			console.log(((performance.now() - start) / 1000).toFixed(2) + "s");
 		} catch (e) {
 			console.error(e);
 		}
-
-		stopLoading();
 	};
 
 	return (
 		<MantineProvider defaultColorScheme="dark">
-			<NavigationProgress />
-			<SearchModal searchTerm={inputValue} opened={searchModalOpened} results={searchResults} select={id => void downloadData(id)} close={closeSearchModal}/>
 			<Stack>
 				<Group justify="center">
 					<DateInput
@@ -190,8 +148,19 @@ function App() {
 						onChange={setEndDate}
 					/>
 				</Group>
+				{downloading ? <Overlay backgroundOpacity={0} blur={2} h={"100%"} fixed={true} /> : null}
 				{wrestlers && athleteId ? (
-					<MatchesTable athleteId={athleteId} bouts={bouts} startDate={startDate} endDate={endDate} />
+					<Stack align="center">
+						<CarouselFloatingIndicators indicators={["Matches", "Placements"]} active={activeTab} setActive={i => { embla?.scrollTo(i); setActiveTab(i) }}/>
+						<Carousel withControls={false} getEmblaApi={setEmbla}>
+							<Carousel.Slide>
+								<MatchesTable athleteId={athleteId} bouts={bouts} startDate={startDate} endDate={endDate} />
+							</Carousel.Slide>
+							<Carousel.Slide>
+								<PlacementsDisplay athleteId={athleteId} wrestlers={wrestlers} startDate={startDate} endDate={endDate} />
+							</Carousel.Slide>
+						</Carousel>
+					</Stack>
 				) : null}
 				{/*wrestlers ? (
 					<Stack>
