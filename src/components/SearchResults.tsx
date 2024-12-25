@@ -2,8 +2,8 @@ import { nprogress } from "@mantine/nprogress";
 import React from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import FloAPI from "../api/FloAPI";
-import { SearchResultPerson, SearchResults } from "../api/types/responses";
-import { Card, Group, Image, Pagination, Skeleton, Stack, Text, Title, Tooltip } from "@mantine/core";
+import { SearchResults } from "../api/types/responses";
+import { Card, Group, Pagination, Skeleton, Stack, Text, Title } from "@mantine/core";
 import dayjs from "dayjs";
 
 import styles from "./SearchResults.module.css";

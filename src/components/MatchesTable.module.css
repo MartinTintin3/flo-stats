@@ -1,0 +1,19 @@
+.scrollableMatch {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.stickyMatch1 {
+	position: sticky;
+	left: 0;
+	z-index: 1;
+	background-color: var(--table-header-bg-color);
+}
+
+.stickyMatch2 {
+	position: sticky;
+	left:  calc(2 * (var(--table-horizontal-spacing, var(--mantine-spacing-xs))) + 3.5rem);
+	z-index: 1;
+	background-color: var(--table-header-bg-color);
+}

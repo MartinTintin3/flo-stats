@@ -1,9 +1,7 @@
 
-import { Accordion, Card, Stack, Table, Text, Title } from "@mantine/core";
-import { WrestlerObject } from "../api/types/objects/wrestler";
-import { AllBoutRelationships, AllWrestlerRelationships } from "../api/types/relationships";
+import { Accordion, Card, Stack, Text, Title } from "@mantine/core";
+import { AllWrestlerRelationships } from "../api/types/relationships";
 import { WrestlersResponse } from "../api/types/responses";
-import { FloObject } from "../api/types/types";
 import { BoutObject } from "../api/types/objects/bout";
 import { BracketPlacementObject } from "../api/types/objects/bracketPlacement";
 import { DivisionObject } from "../api/types/objects/division";
@@ -15,7 +13,6 @@ import { WeightClassObject } from "../api/types/objects/weightClass";
 import FloAPI from "../api/FloAPI";
 
 import styles from "./PlacementsDisplay.module.css";
-import dayjs from "dayjs";
 
 export type PlacementsDisplayProps = {
 	athleteId: string;
@@ -26,7 +23,7 @@ export type PlacementsDisplayProps = {
 
 export default function PlacementsDisplay({ athleteId, wrestlers, startDate, endDate }: PlacementsDisplayProps) {
 	return (
-		<Accordion>
+		<Accordion p="2rem">
 			{wrestlers?.data.map(wrestler => {
 				//const wrestler = wrestlers.data.find(w => w.id == placement.attributes.wrestlerId);
 				const placement = wrestler?.relationships.bracketPlacements.data.length ? FloAPI.findIncludedObjectById<BracketPlacementObject>(wrestler.relationships.bracketPlacements.data[0].id, "bracketPlacement", wrestlers) : null;

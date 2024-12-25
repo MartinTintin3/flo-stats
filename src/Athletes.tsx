@@ -1,37 +1,26 @@
 import React from "react";
-import { Button, Checkbox, CloseButtonProps, Group, MantineProvider, Overlay, Stack, TableData, Tabs, TextInput, Title } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { DateInput } from "@mantine/dates";
-import { nprogress, NavigationProgress } from "@mantine/nprogress";
+import { Checkbox, Group, Overlay, Stack, Tabs } from "@mantine/core";
+import { nprogress } from "@mantine/nprogress";
 
-import SearchModal from "./components/SearchModal";
 
-import { BoutsResponse, SearchResults, WrestlersResponse } from "./api/types/responses";
+import { BoutsResponse, WrestlersResponse } from "./api/types/responses";
 import FloAPI from "./api/FloAPI";
-import { EventAttributes, EventObject } from "./api/types/objects/event";
-import { WrestlerAttributes, WrestlerObject } from "./api/types/objects/wrestler";
-import { BoutsIncludeAll, FloObject, NonNullableFields, WrestlersIncludeAll } from "./api/types/types";
-import { WeightClassObject } from "./api/types/objects/weightClass";
+import { EventObject } from "./api/types/objects/event";
+import { WrestlerObject } from "./api/types/objects/wrestler";
+import { BoutsIncludeAll, FloObject, WrestlersIncludeAll } from "./api/types/types";
 import { BoutObject } from "./api/types/objects/bout";
-import HighlightAndZoomLineChart from "./components/HighlightAndZoomLineChart";
 
-import { IconReload } from "@tabler/icons-react";
 import MatchesTable from "./components/MatchesTable";
 import { AllBoutRelationships, AllWrestlerRelationships } from "./api/types/relationships";
-import { useLocation, useParams } from "react-router";
-import { ID_REGEX } from "./main";
+import { useParams } from "react-router";
 
-import { Carousel, Embla } from "@mantine/carousel";
-
-import CarouselFloatingIndicators from "./components/CarouselFloatingIndicators";
 import PlacementsDisplay from "./components/PlacementsDisplay";
 import dayjs from "dayjs";
-import GeneralInfoDisplay from "./components/GeneralInfoDisplay";
 import { TeamObject } from "./api/types/objects/team";
 
-import styles from "./Athletes.module.css";
 import BoutDateFilter from "./components/BoutDateFilter";
 import { GradeObject } from "./api/types/objects/grade";
+import GeneralInfoDisplay, { BasicInfo } from "./components/GeneralInfoDisplay";
 
 export default function Athletes() {
 	const { id } = useParams();
@@ -62,6 +51,12 @@ export default function Athletes() {
 		byes: true,
 		forfeits: true,
 	});
+
+	React.useEffect(() => {
+		if (athleteId !== id && id && id != downloadingFor) {
+			downloadData(id);
+		}
+	}, [id]);
 
 	React.useEffect(() => {
 		if (bouts) {
@@ -115,28 +110,7 @@ export default function Athletes() {
 		}
 	}, [startDate, endDate, filter]);
 
-	const [basicInfo, setBasicInfo] = React.useState<{
-		name: string;
-		grade?: GradeObject;
-		team?: TeamObject;
-	} | null>(null);
-
-	const [embla, setEmbla] = React.useState<Embla | null>(null);
-	const [activeTab, setActiveTab] = React.useState<number>(0);
-
-	React.useEffect(() => {
-		if (athleteId !== id && id) {
-			downloadData(id);
-		}
-	}, [id]);
-
-	React.useEffect(() => {
-		if (embla) {
-			embla.on("scroll", () => {
-				setActiveTab(embla.selectedScrollSnap());
-			});
-		}
-	}, [embla]);
+	const [basicInfo, setBasicInfo] = React.useState<BasicInfo | null>(null);
 
 
 	const downloadData = async (i: string) => {
@@ -211,10 +185,11 @@ export default function Athletes() {
 	};
 
 	return (
-		<Stack>
+		<Stack w="100%" align="center">
 			{downloading ? <Overlay backgroundOpacity={0} blur={2} h={"100%"} fixed={true} /> : null}
+			{basicInfo ? <GeneralInfoDisplay info={basicInfo} /> : null}
 			<BoutDateFilter startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} oldestBout={oldestBout} newestBout={newestBout} />
-			<Stack gap="sm" mb="md">
+			<Stack gap="sm" mb="md" align="center">
 				<Group content="center">
 					<Checkbox checked={filter.eventType.duals} label="Duals" onChange={e => {
 						if (!e.target.checked) {
@@ -237,13 +212,13 @@ export default function Athletes() {
 				</Group>
 			</Stack>
 			{wrestlers && athleteId ? (
-				<Stack align="center">
-					<Tabs defaultValue="matches">
+				<Stack align="center" w="100%">
+					<Tabs defaultValue="matches" w="100%">
 						<Tabs.List justify="center">
 							<Tabs.Tab value="matches">Matches</Tabs.Tab>
 							<Tabs.Tab value="placements">Placements</Tabs.Tab>
 						</Tabs.List>
-						<Tabs.Panel value="matches">
+						<Tabs.Panel value="matches" styles={{ panel: { overflow: "auto" } }}>
 							<MatchesTable athleteId={athleteId} bouts={filteredBouts} />
 						</Tabs.Panel>
 						<Tabs.Panel value="placements">

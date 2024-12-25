@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import Athletes from "./Athletes.tsx";
 import { BrowserRouter, Route, Routes } from "react-router";
-import { ActionIcon, createTheme, MantineProvider } from "@mantine/core";
+import { createTheme, MantineProvider } from "@mantine/core";
 import { NavigationProgress } from "@mantine/nprogress";
 
 import SearchBar from "./components/SearchBar.tsx";
@@ -16,7 +16,6 @@ import '@mantine/carousel/styles.css';
 
 
 import SearchResultsPage from "./components/SearchResults.tsx";
-import ThemeToggle from "./components/ThemeToggle.tsx";
 
 export const ID_REGEX = new RegExp("[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}"); // UUID v4
 
@@ -46,12 +45,12 @@ ReactDOM.createRoot(root!).render(
 			<NavigationProgress />
 			<BrowserRouter>
 				<SearchBar loading={false} />
-				<ThemeToggle styles={{ root: {
+				{/*<ThemeToggle styles={{ root: {
 					position: "absolute",
 					top: 0,
 					right: 0,
 					margin: "2rem",
-				} }} size="lg" />
+				} }} size="lg" />*/}
 				<Routes>
 					<Route path="/" element={<></>} />
 					<Route path="/search" element={<SearchResultsPage />} />
