@@ -43,7 +43,7 @@ ReactDOM.createRoot(root!).render(
 	<React.StrictMode>
 		<MantineProvider defaultColorScheme="dark" theme={theme}>
 			<NavigationProgress />
-			<BrowserRouter>
+			<BrowserRouter basename="/flo-stats-react">
 				<SearchBar loading={false} />
 				{/*<ThemeToggle styles={{ root: {
 					position: "absolute",
