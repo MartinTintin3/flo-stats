@@ -24,6 +24,7 @@
 		"@mantine/nprogress": "^7.11.2",
 		"@mantine/spotlight": "^7.11.2",
 		"@mantine/tiptap": "^7.11.2",
+		"@react-google-maps/api": "^2.20.5",
 		"@tabler/icons-react": "^3.24.0",
 		"@tiptap/extension-link": "^2.5.8",
 		"@tiptap/react": "^2.5.8",

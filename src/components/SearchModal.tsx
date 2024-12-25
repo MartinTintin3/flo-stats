@@ -58,7 +58,7 @@ export default function SearchModal({ searchTerm, results, opened, close, select
 									{new Array<{ label: string, value: string }>(...[
 										{ label: "Gender", value: result.gender ? (result.gender == "f" ? "Female" : "Male") : "N/A" },
 										{ label: "Birth Date", value: result.birth_date ? dayjs(result.birth_date).format("MM/DD/YYYY") : "N/A" },
-										{ label: "HS Graduation", value: result.high_scrool_grad_year ? result.high_scrool_grad_year.toString() : "N/A" },
+										{ label: "HS Graduation", value: result.high_school_grad_year ? result.high_school_grad_year.toString() : "N/A" },
 										{ label: "Location", value: result.location ? result.location.name : "N/A" },
 									]).map(({ label, value }) => (
 										<Text span

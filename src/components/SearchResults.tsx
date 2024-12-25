@@ -1,9 +1,9 @@
 import { nprogress } from "@mantine/nprogress";
 import React from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, useHref, useNavigate, useSearchParams } from "react-router";
 import FloAPI from "../api/FloAPI";
 import { SearchResultPerson, SearchResults } from "../api/types/responses";
-import { Card, Group, Pagination, Text, Title } from "@mantine/core";
+import { Card, Group, Pagination, Stack, Text, Title, Tooltip } from "@mantine/core";
 import dayjs from "dayjs";
 
 import styles from "./SearchResults.module.css";
@@ -97,6 +97,8 @@ function chunk<T>(array: T[], size: number): T[][] {
 export default function SearchResultsPage() {
 	const [searchParams, setSearchParams] = useSearchParams();
 
+	const navigate = useNavigate();
+
 	const [search, setSearch] = React.useState<string | null>(null);
 	const [results, setResults] = React.useState<SearchResults | null>(null);
 
@@ -157,19 +159,28 @@ export default function SearchResultsPage() {
 		<div>
 			<h1>Search Results</h1>
 			{results ? (results.meta.total && results.data) ? (
-				<>
-					{results.data.map((result, i) => (
-						<Card key={result.arena_person_identity_id} styles={{ root: { textAlign: "left" } }} my="lg" p="lg" className={styles.result}>
-							<Link to={`/athlete/${result.arena_person_identity_id}`} style={{ textDecoration: "none" }}>
-								<Group><Title order={3}>{result.name}</Title><Text c="dimmed">{result.arena_person_identity_id}</Text></Group>
-								{result.location ? <p>{result.location.name} ({result.location.city}, {result.location.state})</p> : null}
-								<Text><Text span fw={600}>HS Graduation:</Text> {result.high_school_grad_year}</Text>
-								{result.birth_date ? <Text><Text span fw={600}>Birthdate:</Text> {dayjs(result.birth_date).format("MMMM D, YYYY")}</Text> : null}
-							</Link>
-						</Card>
-					))}
-					<Pagination total={Math.min(results.meta.max_limit, results.meta.pages)} value={results.meta.page} onChange={switchPage} />
-				</>
+				<Stack align="stretch">
+					<Stack>
+						{results.data.map((result, i) => (
+							<Card key={result.arena_person_identity_id} styles={{ root: { textAlign: "left" } }}  p="lg" className={styles.result} onClick={() => navigate(`/athlete/${result.arena_person_identity_id}`)}>
+								<Link to={`/athlete/${result.arena_person_identity_id}`} style={{ textDecoration: "none" }}>
+									<Group align={"end"}><Title order={3}>{result.name}</Title><Text c="dimmed">ID: {result.arena_person_identity_id}</Text></Group>
+									{result.location ?
+										<Group>
+											<p>{result.location.name} ({result.location.city}, {result.location.state})</p> <Text c="dimmed">{result.location.google_place_id}</Text>
+										</Group>
+									: null}
+									<Text><Text span fw={600}>HS Graduation:</Text> {result.high_school_grad_year}</Text>
+									{result.birth_date ? <Text><Text span fw={600}>Birthdate:</Text> {dayjs(result.birth_date).format("MMMM D, YYYY")}</Text> : null}
+								</Link>
+							</Card>
+						))}
+					</Stack>
+					<Pagination
+						total={Math.min(results.meta.max_limit, results.meta.pages)} value={results.meta.page} withEdges withControls onChange={switchPage}
+						styles={{ root: { justifyItems: "center" } }}
+					/>
+				</Stack>
 			) : (
 				<p>No results found</p>
 			): (

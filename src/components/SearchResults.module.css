@@ -1,5 +1,16 @@
 .result {
+	border: 2px solid var(--mantine-color-default-border);
+
 	&:hover {
-		opacity: 0.8;
+		background-color: var(--mantine-color-default-hover);
 	}
+}
+
+a {
+	color: var(--mantine-color-text);
+	text-decoration: none;
+}
+
+a:active {
+	color: var(--mantine-color-dimmed);
 }
