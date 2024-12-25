@@ -9,6 +9,10 @@
 a.resultLink {
 	color: var(--mantine-color-text);
 	text-decoration: none;
+
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
 }
 
 a.resultLink:active {

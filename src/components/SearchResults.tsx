@@ -111,16 +111,14 @@ export default function SearchResultsPage() {
 				<Stack align="stretch">
 					<Stack>
 						{results.data.map((result, i) => (
-							<Card key={result.id} styles={{ root: { textAlign: "left", flexBasis: "11rem", justifyContent: "center" } }}  p="lg" className={styles.result}>
+							<Card key={result.id} styles={{ root: { textAlign: "left", flexBasis: "11rem", justifyContent: "center" } }} p="lg" className={styles.result}>
 								<Link to={`/athletes/${result.arena_person_identity_id}`} style={{ textDecoration: "none" }} className={styles.resultLink}>
-									<Group align={"end"}><Title order={3}>{result.name}</Title><Text c="dimmed">ID: {result.arena_person_identity_id}</Text></Group>
+									<Title order={3}>{result.name}</Title><Text size="xs" c="dimmed">ID: {result.arena_person_identity_id}</Text>
 									{result.location ?
-										<Group>
-											<p>{result.location.name} ({[result.location.city, result.location.state].filter(v => v).join(", ")})</p>
-										</Group>
+										<Text><Text span fw={600}>Location:</Text> {result.location.name} ({[result.location.city, result.location.state].filter(v => v).join(", ")})</Text>
 									: <Text c="dimmed">No location data</Text>}
 									<Text><Text span fw={600}>HS Graduation:</Text> {result.high_school_grad_year}</Text>
-									{result.birth_date ? <Text><Text span fw={600}>Birthday:</Text> {dayjs(result.birth_date).format("MMMM D, YYYY")}</Text> : <Text c="dimmed">No birth date</Text>}
+									{result.birth_date ? <Text><Text span fw={600}>Birthday:</Text> {dayjs(result.birth_date).format("MMMM D, YYYY")}</Text> : <Text c="dimmed">Birth date unavailable</Text>}
 								</Link>
 							</Card>
 						))}
