@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
+import Athletes from "./Athletes.tsx";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { ActionIcon, createTheme, MantineProvider } from "@mantine/core";
 import { NavigationProgress } from "@mantine/nprogress";
@@ -54,8 +54,9 @@ ReactDOM.createRoot(root!).render(
 				} }} size="lg" />
 				<Routes>
 					<Route path="/" element={<></>} />
-					<Route path="/athletes/:id" element={<App />} />
 					<Route path="/search" element={<SearchResultsPage />} />
+					<Route path="/athletes/:id" element={<Athletes />} />
+					<Route path="/teams/:id" element={<Athletes />} />
 				</Routes>
 			</BrowserRouter>
 		</MantineProvider>

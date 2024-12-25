@@ -118,9 +118,9 @@ export default function SearchResultsPage() {
 										<Group>
 											<p>{result.location.name} ({[result.location.city, result.location.state].filter(v => v).join(", ")})</p> <Text c="dimmed">{result.location.google_place_id}</Text>
 										</Group>
-									: null}
+									: <Text c="dimmed">No location data</Text>}
 									<Text><Text span fw={600}>HS Graduation:</Text> {result.high_school_grad_year}</Text>
-									{result.birth_date ? <Text><Text span fw={600}>Birthdate:</Text> {dayjs(result.birth_date).format("MMMM D, YYYY")}</Text> : null}
+									{result.birth_date ? <Text><Text span fw={600}>Birthday:</Text> {dayjs(result.birth_date).format("MMMM D, YYYY")}</Text> : <Text c="dimmed">No birth date</Text>}
 								</Link>
 							</Card>
 						))}
