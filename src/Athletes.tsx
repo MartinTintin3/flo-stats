@@ -16,11 +16,13 @@ import { useParams } from "react-router";
 
 import PlacementsDisplay from "./components/PlacementsDisplay";
 import dayjs from "dayjs";
-import { TeamObject } from "./api/types/objects/team";
+import { TeamAttributes, TeamObject } from "./api/types/objects/team";
 
 import BoutDateFilter from "./components/BoutDateFilter";
 import { GradeObject } from "./api/types/objects/grade";
 import GeneralInfoDisplay, { BasicInfo } from "./components/GeneralInfoDisplay";
+
+import { useLocation } from "react-router";
 
 export default function Athletes() {
 	const { id } = useParams();
@@ -54,13 +56,15 @@ export default function Athletes() {
 
 	React.useEffect(() => {
 		if (athleteId !== id && id && id != downloadingFor) {
-			downloadData(id);
+			if (wrestlers && wrestlers.data.find(w => w.attributes.identityPersonId == id)) return;
+			void downloadData(id);
 		}
 	}, [id]);
 
 	React.useEffect(() => {
 		if (bouts) {
 			let total = 0;
+			console.log(bouts);
 			setFilteredBouts({
 				data: bouts.data.filter(bout => {
 					const date = dayjs(bout.attributes.goDateTime ?? bout.attributes.endDateTime ?? FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", bouts)?.attributes.startDateTime);
@@ -113,18 +117,18 @@ export default function Athletes() {
 	const [basicInfo, setBasicInfo] = React.useState<BasicInfo | null>(null);
 
 
-	const downloadData = async (i: string) => {
-		if (i == athleteId || i == downloadingFor) return;
-		console.log(i, athleteId, downloadingFor);
+	const downloadData = async (identityPersonId: string) => {
+		if (identityPersonId == athleteId || identityPersonId == downloadingFor) return;
+		console.log(identityPersonId, athleteId, downloadingFor);
 
-		setDownloadingFor(i);
+		setDownloadingFor(identityPersonId);
 		setDownloading(true);
 
 		try {
 			const start = performance.now();
 			nprogress.start();
 			// Fetch all wrestler instances for athlete ID
-			const wrestlersResponse = await FloAPI.fetchWrestlersByAthleteId<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>(i, {
+			const wrestlersResponse = await FloAPI.fetchWrestlersByAthleteId<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>(identityPersonId, {
 				pageSize: 0,
 				pageOffset: 0,
 				onProgress: p => nprogress.set(p / 2),
@@ -145,28 +149,48 @@ export default function Athletes() {
 			setWrestlers(wrestlersResponse);
 
 			// Fetch all bouts of athlete ID
-			const boutsResponse = await FloAPI.fetchBouts<AllBoutRelationships, Exclude<FloObject, BoutObject>>(i, {
+			const boutsResponse = await FloAPI.fetchBouts<AllBoutRelationships, Exclude<FloObject, BoutObject>>(identityPersonId, {
 				pageSize: 0,
 				pageOffset: 0,
 				onProgress: p => nprogress.set(p / 2 + 50),
 			}, BoutsIncludeAll);
 
-			setBasicInfo({
+			const teamIdentityIds = [...new Set(wrestlersResponse.data.map(w => FloAPI.findIncludedObjectById<TeamObject>(w.attributes.teamId, "team", wrestlersResponse)).map(t => t?.attributes.identityTeamId).filter(t => typeof t == "string"))];
+			const teamBasics = teamIdentityIds.map(t => wrestlersResponse.included.find(i => i.type == "team" && i.attributes.identityTeamId == t)?.attributes) as TeamAttributes[];
+
+			const basicInfo = {
 				name: wrestlersResponse.data[0].attributes.firstName + " " + wrestlersResponse.data[0].attributes.lastName,
 				grade: wrestlersResponse.data.find(w => w.attributes.grade)?.attributes.grade,
-				team: wrestlersResponse.data.find(w => w.attributes.teamId)?.attributes.teamId ? FloAPI.findIncludedObjectById<TeamObject>(wrestlersResponse.data.find(w => w.attributes.teamId)?.attributes.teamId as string, "team", wrestlersResponse) : undefined,
-			});
+				teams: teamBasics.map(team => {
+					const identityId = team.identityTeamId;
+
+					return {
+						attributes: team,
+						matches: boutsResponse.data.filter(bout => {
+							const top = FloAPI.findIncludedObjectById<WrestlerObject>(bout.attributes.topWrestlerId, "wrestler", boutsResponse);
+							const bottom = FloAPI.findIncludedObjectById<WrestlerObject>(bout.attributes.bottomWrestlerId, "wrestler", boutsResponse);
+							const current = top?.attributes.identityPersonId == identityPersonId ? top : bottom;
+							if (!current) return false;
+							return FloAPI.findIncludedObjectById<TeamObject>(current.attributes.teamId, "team", boutsResponse)?.attributes.identityTeamId == identityId;
+						}),
+					};
+				}),
+			} as BasicInfo;
+
+			setBasicInfo(basicInfo);
+
+			document.title = `${basicInfo.name} - FloStats`;
 
 			setBouts(boutsResponse);
 
-			setAthleteId(i);
+			setAthleteId(identityPersonId);
 			setDownloading(false);
 
 			window["bouts"] = boutsResponse;
 
 			if (boutsResponse && boutsResponse.data.length) {
-				const oldest = boutsResponse.data.map(bout => new Date(bout.attributes.endDateTime ?? bout.attributes.goDateTime ?? Date.now())).reduce((a, b) => a < b ? a : b)
-				const newest = boutsResponse.data.map(bout => new Date(bout.attributes.endDateTime ?? bout.attributes.goDateTime ?? Date.now())).reduce((a, b) => a > b ? a : b)
+				const oldest = boutsResponse.data.map(bout => new Date(bout.attributes.endDateTime ?? bout.attributes.goDateTime ?? Date.now())).reduce((a, b) => a < b ? a : b);
+				const newest = boutsResponse.data.map(bout => new Date(bout.attributes.endDateTime ?? bout.attributes.goDateTime ?? Date.now())).reduce((a, b) => a > b ? a : b);
 				setOldestBout(oldest);
 				setNewestBout(newest);
 
@@ -193,16 +217,16 @@ export default function Athletes() {
 				<Group content="center">
 					<Checkbox checked={filter.eventType.duals} label="Duals" onChange={e => {
 						if (!e.target.checked) {
-							setFilter({ ...filter, eventType: { ...filter.eventType, duals: false, tournaments: true } })
+							setFilter({ ...filter, eventType: { ...filter.eventType, duals: false, tournaments: true } });
 						} else {
-							setFilter({ ...filter, eventType: { ...filter.eventType, duals: true } })
+							setFilter({ ...filter, eventType: { ...filter.eventType, duals: true } });
 						}
 					}} />
 					<Checkbox checked={filter.eventType.tournaments} label="Tournaments" onChange={e => {
 						if (!e.target.checked) {
-							setFilter({ ...filter, eventType: { ...filter.eventType, tournaments: false, duals: true } })
+							setFilter({ ...filter, eventType: { ...filter.eventType, tournaments: false, duals: true } });
 						} else {
-							setFilter({ ...filter, eventType: { ...filter.eventType, tournaments: true } })
+							setFilter({ ...filter, eventType: { ...filter.eventType, tournaments: true } });
 						}
 					}} />
 				</Group>

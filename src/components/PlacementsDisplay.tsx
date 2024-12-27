@@ -31,11 +31,11 @@ export default function PlacementsDisplay({ athleteId, wrestlers, startDate, end
 				const weightClass = wrestler ? FloAPI.findIncludedObjectById<WeightClassObject>(wrestler.relationships.weightClass.data.id, "weightClass", wrestlers) : null;
 				const division = wrestler ? FloAPI.findIncludedObjectById<DivisionObject>(wrestler.relationships.division.data.id, "division", wrestlers) : null;
 
-				const color = placement?.attributes.placement == 1 ? "var(--mantine-color-green-4)" :	
-							placement?.attributes.placement == 2 ? "var(--mantine-color-green-2)" :
-							placement?.attributes.placement == 3 ? "var(--mantine-color-green-1)" :
+				const color = placement?.attributes.placement == 1 ? "var(--mantine-color-green-4)" :
+					placement?.attributes.placement == 2 ? "var(--mantine-color-green-2)" :
+						placement?.attributes.placement == 3 ? "var(--mantine-color-green-1)" :
 							event?.attributes.isDual ? "var(--mantine-color-gray-4)" :
-							"var(--mantine-color-red-4)"
+								"var(--mantine-color-red-4)";
 
 				return (
 					<Accordion.Item key={wrestler.id} value={wrestler.id}>
@@ -50,8 +50,8 @@ export default function PlacementsDisplay({ athleteId, wrestlers, startDate, end
 							</Accordion.Control>
 						</Card>
 					</Accordion.Item>
-				)
+				);
 			})}
 		</Accordion>
-	)
+	);
 }

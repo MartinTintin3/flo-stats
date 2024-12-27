@@ -63,5 +63,5 @@ export default function BoutDateFilter({ startDate, endDate, setStartDate, setEn
 				onChange={setEndDate}
 			/>
 		</Group>
-	)
+	);
 }
