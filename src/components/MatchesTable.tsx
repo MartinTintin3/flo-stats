@@ -1,5 +1,5 @@
 import { em, Group, Table, Text } from "@mantine/core";
-import { BoutsResponse } from "../api/types/responses";
+import { BoutsResponse, WrestlersResponse } from "../api/types/responses";
 import { BoutObject } from "../api/types/objects/bout";
 import { FloObject } from "../api/types/types";
 import React, { useMemo } from "react";
@@ -7,7 +7,7 @@ import FloAPI from "../api/FloAPI";
 import { WrestlerObject } from "../api/types/objects/wrestler";
 import dayjs, { Dayjs } from "dayjs";
 import { EventObject } from "../api/types/objects/event";
-import { AllBoutRelationships } from "../api/types/relationships";
+import { AllBoutRelationships, AllWrestlerRelationships } from "../api/types/relationships";
 import { data, Link } from "react-router";
 import { RoundNameObject } from "../api/types/objects/roundName";
 import { WeightClassObject } from "../api/types/objects/weightClass";
@@ -21,7 +21,7 @@ import { TeamObject } from "../api/types/objects/team";
 
 type MatchesTableProps = {
 	athleteId: string;
-	bouts: BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>> | null,
+	bouts: BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>>,
 	startDate?: Date | null,
 	endDate?: Date | null,
 }
@@ -52,15 +52,9 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 			accessorFn: row => row.isAWin ? "W" : "L",
 			id: "winLoss",
 			Cell: ({ cell }) => <Text ta="center" size="sm" c={cell.getValue<string>() == "W" ? "green" : "red"}>{cell.getValue<string>()}</Text>,
-			size: 120,
+			size: 50,
 			enableSorting: false,
-			mantineTableHeadCellProps: {
-				styles: {
-					th: {
-						justifyContent: "center",
-					}
-				}
-			},
+			Header: ({ column }) => <Text ta="center" size="sm">W/L</Text>,
 			mantineTableBodyCellProps: {
 				styles: {
 					td: {
@@ -68,40 +62,56 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 					}
 				}
 			},
+			enableColumnActions: false,
 		},
 		{
 			header: "Date",
 			accessorFn: row => row.date.unix(),
 			id: "date",
+			enablePinning: false,
+			size: 120,
 			Cell: ({ cell }) => <Text size="sm">{dayjs(cell.getValue<number>()).format("MM/DD/YY")}</Text>,
 		},
 		{
 			header: "Opponent",
-			accessorFn: row => row.noOpponent ? row.noOpponentString : row.opponent!.attributes.identityPersonId,
+			accessorFn: row => row.noOpponent ? row.noOpponentString : `${row.opponent?.attributes.firstName} ${row.opponent?.attributes.lastName}`,
 			id: "opponent",
-			Cell: ({ row }) => (
-				row.original.noOpponent ? <Text size="sm" fs={row.original.noOpponent ? "italic" : undefined} c={row.original.noOpponent ? "dimmed" : undefined}>{row.original.noOpponentString}</Text> : 
+			enablePinning: false,
+			Cell: ({ row, renderedCellValue}) => (
+				row.original.noOpponent ? 
+				<Text fs={row.original.noOpponent ? "italic" : undefined} c={row.original.noOpponent ? "dimmed" : undefined}>
+					{renderedCellValue}
+				</Text> : 
 				<Link to={`/athletes/${row.original.opponent?.attributes.identityPersonId}`} style={{ textDecoration: "none" }}>
-					{row.original.opponent?.attributes.firstName ?? row.original.noOpponentString} {row.original.opponent?.attributes.lastName}
+					{renderedCellValue}
 				</Link>
-					
 			),
 		},
 		{
 			header: "Opp. Team",
 			accessorFn: row => row.opponentTeam?.attributes.name,
 			id: "opponentTeam",
+			enablePinning: false,
 		},
 		{
 			header: "Result",
-			accessorFn: row => `${row.bout.attributes.winType} ${row.bout.attributes.result}`,
+			accessorFn: row => row.noOpponent ? row.bout.attributes.winType : `${row.bout.attributes.winType} ${row.bout.attributes.result}`,
+			size: 120,
 			id: "result",
+			enablePinning: false,
 		},
 		{
 			header: "Event",
 			accessorFn: row => row.event.attributes.name,
 			id: "event",
 			enableResizing: true,
+			enablePinning: false,
+			size: mobile ? 200 : 300,
+			Cell: ({ row, renderedCellValue }) => (
+				<Link to={`https://arena.flowrestling.org/event/${row.original.event.id}`} target="__blank" style={{ textDecoration: "none", textOverflow: "ellipsis", overflow: "hidden" }}>
+					{renderedCellValue}
+				</Link>
+			),
 		},
 		{
 			header: "Round",
@@ -143,6 +153,7 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 		const roundName = FloAPI.findIncludedObjectById<RoundNameObject>(bout.attributes.roundNameId, "roundName", bouts);
 		const event = FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", bouts);
 		const division = thisWrestler ? FloAPI.findIncludedObjectById<DivisionObject>(thisWrestler?.attributes.divisionId, "division", bouts) : undefined;
+		if (!division) console.log("WTF no division found for wrestler", thisWrestler);
 
 		return {
 			date,
@@ -166,9 +177,17 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 		columns,
 		data: tableData,
 		enablePagination: false,
+		enableColumnPinning: true,
+		enableBottomToolbar: false,
+		mantineTopToolbarProps: {
+			className: styles.matchesTopToolbar,
+		},
 		initialState: {
 			density: "xs",
 			sorting: [{ id: "date", desc: true }],
+			columnPinning: {
+				left: ["winLoss"],
+			}
 		},
 		layoutMode: "grid-no-grow",
 	});

@@ -55,7 +55,7 @@ export default function SearchBar({ loading }: Props) {
 				loading={loading}
 				onClick={() => {
 					if (!inputValue) {
-						setInputError(true);
+						// setInputError(true);
 					} else {
 						const test = ID_REGEX.exec(inputValue);
 						if (!test) {

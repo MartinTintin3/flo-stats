@@ -19,10 +19,9 @@ import dayjs from "dayjs";
 import { TeamAttributes, TeamObject } from "./api/types/objects/team";
 
 import BoutDateFilter from "./components/BoutDateFilter";
-import { GradeObject } from "./api/types/objects/grade";
 import GeneralInfoDisplay, { BasicInfo } from "./components/GeneralInfoDisplay";
 
-import { useLocation } from "react-router";
+import Analysis from "./components/Analysis";
 
 export default function Athletes() {
 	const { id } = useParams();
@@ -64,7 +63,6 @@ export default function Athletes() {
 	React.useEffect(() => {
 		if (bouts) {
 			let total = 0;
-			console.log(bouts);
 			setFilteredBouts({
 				data: bouts.data.filter(bout => {
 					const date = dayjs(bout.attributes.goDateTime ?? bout.attributes.endDateTime ?? FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", bouts)?.attributes.startDateTime);
@@ -186,7 +184,7 @@ export default function Athletes() {
 			setAthleteId(identityPersonId);
 			setDownloading(false);
 
-			window["bouts"] = boutsResponse;
+			(window as any)["bouts"] = boutsResponse;
 
 			if (boutsResponse && boutsResponse.data.length) {
 				const oldest = boutsResponse.data.map(bout => new Date(bout.attributes.endDateTime ?? bout.attributes.goDateTime ?? Date.now())).reduce((a, b) => a < b ? a : b);
@@ -235,8 +233,9 @@ export default function Athletes() {
 					<Checkbox checked={filter.forfeits} label="Forfeits" onChange={e => setFilter({ ...filter, forfeits: e.target.checked })} />
 				</Group>
 			</Stack>
-			{wrestlers && athleteId ? (
+			{filteredBouts && filteredWrestlers && athleteId ? (
 				<Stack align="center" w="100%">
+					<Analysis bouts={filteredBouts} wrestlers={filteredWrestlers} id={athleteId} />
 					<Tabs defaultValue="matches" w="100%">
 						<Tabs.List justify="center">
 							<Tabs.Tab value="matches">Matches</Tabs.Tab>

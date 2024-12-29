@@ -2,21 +2,19 @@
 import { Accordion, Card, Stack, Text, Title } from "@mantine/core";
 import { AllWrestlerRelationships } from "../api/types/relationships";
 import { WrestlersResponse } from "../api/types/responses";
-import { BoutObject } from "../api/types/objects/bout";
 import { BracketPlacementObject } from "../api/types/objects/bracketPlacement";
 import { DivisionObject } from "../api/types/objects/division";
 import { EventObject } from "../api/types/objects/event";
-import { GradeObject } from "../api/types/objects/grade";
-import { RoundNameObject } from "../api/types/objects/roundName";
-import { TeamObject } from "../api/types/objects/team";
 import { WeightClassObject } from "../api/types/objects/weightClass";
 import FloAPI from "../api/FloAPI";
 
 import styles from "./PlacementsDisplay.module.css";
+import { FloObject } from "../api/types/types";
+import { WrestlerObject } from "../api/types/objects/wrestler";
 
 export type PlacementsDisplayProps = {
 	athleteId: string;
-	wrestlers: WrestlersResponse<AllWrestlerRelationships, BoutObject | DivisionObject | EventObject | GradeObject | RoundNameObject | TeamObject | WeightClassObject | BracketPlacementObject> | null,
+	wrestlers: WrestlersResponse<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>,
 	startDate?: Date | null,
 	endDate?: Date | null,
 };
