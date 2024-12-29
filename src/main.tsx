@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import Athletes from "./Athletes.tsx";
-import { BrowserRouter, HashRouter, Route, Routes } from "react-router";
+import { HashRouter, Route, Routes } from "react-router";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { NavigationProgress } from "@mantine/nprogress";
 
@@ -12,7 +12,8 @@ import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/nprogress/styles.css";
-import '@mantine/carousel/styles.css';
+import "@mantine/carousel/styles.css";
+import "mantine-react-table/styles.css";
 
 
 import SearchResultsPage from "./components/SearchResults.tsx";

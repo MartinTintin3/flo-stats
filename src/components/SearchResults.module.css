@@ -18,3 +18,9 @@ a.resultLink {
 a.resultLink:active {
 	color: var(--mantine-color-dimmed);
 }
+
+.resultsPagination {
+	* {
+		justify-content: center;
+	}
+}

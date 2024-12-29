@@ -2,21 +2,19 @@
 import { Accordion, Card, Stack, Text, Title } from "@mantine/core";
 import { AllWrestlerRelationships } from "../api/types/relationships";
 import { WrestlersResponse } from "../api/types/responses";
-import { BoutObject } from "../api/types/objects/bout";
 import { BracketPlacementObject } from "../api/types/objects/bracketPlacement";
 import { DivisionObject } from "../api/types/objects/division";
 import { EventObject } from "../api/types/objects/event";
-import { GradeObject } from "../api/types/objects/grade";
-import { RoundNameObject } from "../api/types/objects/roundName";
-import { TeamObject } from "../api/types/objects/team";
 import { WeightClassObject } from "../api/types/objects/weightClass";
 import FloAPI from "../api/FloAPI";
 
 import styles from "./PlacementsDisplay.module.css";
+import { FloObject } from "../api/types/types";
+import { WrestlerObject } from "../api/types/objects/wrestler";
 
 export type PlacementsDisplayProps = {
 	athleteId: string;
-	wrestlers: WrestlersResponse<AllWrestlerRelationships, BoutObject | DivisionObject | EventObject | GradeObject | RoundNameObject | TeamObject | WeightClassObject | BracketPlacementObject> | null,
+	wrestlers: WrestlersResponse<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>,
 	startDate?: Date | null,
 	endDate?: Date | null,
 };
@@ -31,11 +29,11 @@ export default function PlacementsDisplay({ athleteId, wrestlers, startDate, end
 				const weightClass = wrestler ? FloAPI.findIncludedObjectById<WeightClassObject>(wrestler.relationships.weightClass.data.id, "weightClass", wrestlers) : null;
 				const division = wrestler ? FloAPI.findIncludedObjectById<DivisionObject>(wrestler.relationships.division.data.id, "division", wrestlers) : null;
 
-				const color = placement?.attributes.placement == 1 ? "var(--mantine-color-green-4)" :	
-							placement?.attributes.placement == 2 ? "var(--mantine-color-green-2)" :
-							placement?.attributes.placement == 3 ? "var(--mantine-color-green-1)" :
+				const color = placement?.attributes.placement == 1 ? "var(--mantine-color-green-4)" :
+					placement?.attributes.placement == 2 ? "var(--mantine-color-green-2)" :
+						placement?.attributes.placement == 3 ? "var(--mantine-color-green-1)" :
 							event?.attributes.isDual ? "var(--mantine-color-gray-4)" :
-							"var(--mantine-color-red-4)"
+								"var(--mantine-color-red-4)";
 
 				return (
 					<Accordion.Item key={wrestler.id} value={wrestler.id}>
@@ -50,8 +48,8 @@ export default function PlacementsDisplay({ athleteId, wrestlers, startDate, end
 							</Accordion.Control>
 						</Card>
 					</Accordion.Item>
-				)
+				);
 			})}
 		</Accordion>
-	)
+	);
 }

@@ -53,7 +53,7 @@ export default function SearchResultsPage() {
 		if (q) {
 			if (q != search) setSearch(q);
 
-			document.title = `${q} - Flo Search`;
+			document.title = `${q} - FloStats`;
 		}
 	}, [searchParams]);
 
@@ -102,21 +102,21 @@ export default function SearchResultsPage() {
 		if (search) searchFor(search, page).then(data => {
 			setResults(data);
 		}).catch(console.error);
-	}
+	};
 
 	return (
-		<div>
+		<Stack>
 			<h1>Search Results</h1>
 			{results ? (results.meta.total && results.data) ? (
-				<Stack align="stretch">
+				<Stack align="stretch" gap="xl" mb="xl">
 					<Stack>
 						{results.data.map((result, i) => (
-							<Card key={result.id} styles={{ root: { textAlign: "left", flexBasis: "11rem", justifyContent: "center" } }} p="lg" className={styles.result}>
+							<Card key={result.id} styles={{ root: { textAlign: "left", flexBasis: "11rem", justifyContent: "center" } }} p="lg" className={styles.result} mx="xs">
 								<Link to={`/athletes/${result.arena_person_identity_id}`} style={{ textDecoration: "none" }} className={styles.resultLink}>
 									<Title order={3}>{result.name}</Title><Text size="xs" c="dimmed">ID: {result.arena_person_identity_id}</Text>
 									{result.location ?
 										<Text><Text span fw={600}>Location:</Text> {result.location.name} ({[result.location.city, result.location.state].filter(v => v).join(", ")})</Text>
-									: <Text c="dimmed">No location data</Text>}
+										: <Text c="dimmed">No location data</Text>}
 									<Text><Text span fw={600}>HS Graduation:</Text> {result.high_school_grad_year}</Text>
 									{result.birth_date ? <Text><Text span fw={600}>Birthday:</Text> {dayjs(result.birth_date).format("MMMM D, YYYY")}</Text> : <Text c="dimmed">Birth date unavailable</Text>}
 								</Link>
@@ -125,7 +125,8 @@ export default function SearchResultsPage() {
 					</Stack>
 					<Pagination
 						total={Math.min(results.meta.max_limit, results.meta.pages)} value={results.meta.page} withEdges withControls onChange={switchPage}
-						styles={{ root: { justifyItems: "center" } }}
+						styles={{ root: { justifyItems: "center", justifyContent: "center" } }}
+						className={styles.resultsPagination}
 					/>
 				</Stack>
 			) : (
@@ -135,6 +136,6 @@ export default function SearchResultsPage() {
 					<Skeleton key={i} style={{ marginBottom: "1rem" }} />
 				))
 			)}
-		</div>
-	)
+		</Stack>
+	);
 }

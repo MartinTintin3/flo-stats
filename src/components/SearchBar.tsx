@@ -55,12 +55,12 @@ export default function SearchBar({ loading }: Props) {
 				loading={loading}
 				onClick={() => {
 					if (!inputValue) {
-						setInputError(true);
+						// setInputError(true);
 					} else {
 						const test = ID_REGEX.exec(inputValue);
 						if (!test) {
 							// void searchFor(inputValue);
-							navigate(`/search?q=${inputValue}`);
+							navigate(`/search?q=${encodeURIComponent(inputValue)}&page=1`);
 						} else {
 							// void downloadData(test[0]);
 							navigate(`/athletes/${test[0]}`);
@@ -74,5 +74,5 @@ export default function SearchBar({ loading }: Props) {
 				<IconSearch />
 			</ActionIcon>
 		</Group>
-	)
+	);
 }
