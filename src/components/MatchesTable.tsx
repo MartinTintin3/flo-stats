@@ -37,7 +37,7 @@ type UsableData = {
 	thisWrestler: WrestlerObject;
 	thisTeam: TeamObject;
 	weightClass: WeightClassObject;
-	roundName: RoundNameObject;
+	roundName?: RoundNameObject;
 	event: EventObject;
 	division?: DivisionObject;
 	bout: BoutObject;
@@ -67,10 +67,12 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 		{
 			header: "Date",
 			accessorFn: row => row.date.unix(),
-			id: "date",
+			id: "date", 	
 			enablePinning: false,
 			size: 120,
-			Cell: ({ cell }) => <Text size="sm">{dayjs(cell.getValue<number>()).format("MM/DD/YY")}</Text>,
+			Cell: ({ row }) => (
+				<Text>{row.original.date.format("M/D/YY")}</Text>
+			),
 		},
 		{
 			header: "Opponent",
@@ -115,7 +117,7 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 		},
 		{
 			header: "Round",
-			accessorFn: row => row.roundName.attributes.displayName,
+			accessorFn: row => row.roundName?.attributes.displayName,
 			id: "round",
 		},
 		{

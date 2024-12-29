@@ -157,7 +157,8 @@ export default function Athletes() {
 			const teamBasics = teamIdentityIds.map(t => wrestlersResponse.included.find(i => i.type == "team" && i.attributes.identityTeamId == t)?.attributes) as TeamAttributes[];
 
 			const basicInfo = {
-				name: wrestlersResponse.data[0].attributes.firstName + " " + wrestlersResponse.data[0].attributes.lastName,
+				name: wrestlersResponse.data.find(w => w.attributes.firstName) ? (wrestlersResponse.data.find(w => w.attributes.firstName)?.attributes.firstName + " " + wrestlersResponse.data.find(w => w.attributes.lastName)?.attributes.lastName) : undefined,
+				dateOfBirth: wrestlersResponse.data.find(w => w.attributes.dateOfBirth) ?  dayjs(wrestlersResponse.data.find(w => w.attributes.dateOfBirth)?.attributes.dateOfBirth) : undefined,
 				grade: wrestlersResponse.data.find(w => w.attributes.grade)?.attributes.grade,
 				teams: teamBasics.map(team => {
 					const identityId = team.identityTeamId;
