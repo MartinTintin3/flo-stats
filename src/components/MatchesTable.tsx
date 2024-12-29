@@ -71,7 +71,7 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 			enablePinning: false,
 			size: 120,
 			Cell: ({ row }) => (
-				<Text>{row.original.date.format("M/D/YY")}</Text>
+				<Text>{row.original.date.format("MM/DD/YY")}</Text>
 			),
 		},
 		{
