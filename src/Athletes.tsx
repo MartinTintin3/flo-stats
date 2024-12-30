@@ -21,18 +21,27 @@ import { TeamAttributes, TeamObject } from "./api/types/objects/team";
 import BoutDateFilter from "./components/BoutDateFilter";
 import GeneralInfoDisplay, { BasicInfo } from "./components/GeneralInfoDisplay";
 
-import Analysis from "./components/Analysis";
+import TimeframeSummary from "./components/TimeframeSummary";
+
+export type AthleteDataProps = {
+	wrestlers: WrestlersResponse<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>,
+	bouts: BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>>,
+	identityPersonId: string,
+}
+
+type Wrestlers = WrestlersResponse<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>;
+type Bouts = BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>>;
 
 export default function Athletes() {
 	const { id } = useParams();
 
 	const [downloading, setDownloading] = React.useState<boolean>(false);
 
-	const [wrestlers, setWrestlers] = React.useState<WrestlersResponse<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>> | null>(null);
-	const [bouts, setBouts] = React.useState<BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>> | null>(null);
+	const [wrestlers, setWrestlers] = React.useState<Wrestlers | null>(null);
+	const [bouts, setBouts] = React.useState<Bouts | null>(null);
 
-	const [filteredWrestlers, setFilteredWrestlers] = React.useState<WrestlersResponse<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>> | null>(null);
-	const [filteredBouts, setFilteredBouts] = React.useState<BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>> | null>(null);
+	const [filteredWrestlers, setFilteredWrestlers] = React.useState<Wrestlers | null>(null);
+	const [filteredBouts, setFilteredBouts] = React.useState<Bouts | null>(null);
 
 	const [oldestBout, setOldestBout] = React.useState<Date | undefined>(undefined);
 	const [newestBout, setNewestBout] = React.useState<Date | undefined>(undefined);
@@ -114,6 +123,11 @@ export default function Athletes() {
 
 	const [basicInfo, setBasicInfo] = React.useState<BasicInfo | null>(null);
 
+	/*const seasons = React.useMemo<{ name: string, bouts: Bouts, wrestlers: Wrestlers }[]>(() => {
+		bouts?.data.forEach(bout => {
+			
+		});
+	}, [filteredBouts, filteredWrestlers]);*/
 
 	const downloadData = async (identityPersonId: string) => {
 		if (identityPersonId == athleteId || identityPersonId == downloadingFor) return;
@@ -235,29 +249,9 @@ export default function Athletes() {
 				</Group>
 			</Stack>
 			{filteredBouts && filteredWrestlers && athleteId ? (
-				<Stack align="center" w="100%">
-					<Analysis bouts={filteredBouts} wrestlers={filteredWrestlers} id={athleteId} />
-					<Tabs defaultValue="matches" w="100%">
-						<Tabs.List justify="center">
-							<Tabs.Tab value="matches">Matches</Tabs.Tab>
-							<Tabs.Tab value="placements">Placements</Tabs.Tab>
-						</Tabs.List>
-						<Tabs.Panel value="matches" styles={{ panel: { overflow: "auto" } }}>
-							<MatchesTable athleteId={athleteId} bouts={filteredBouts} />
-						</Tabs.Panel>
-						<Tabs.Panel value="placements">
-							<PlacementsDisplay athleteId={athleteId} wrestlers={filteredWrestlers} />
-						</Tabs.Panel>
-					</Tabs>
-					{/*<CarouselFloatingIndicators indicators={["Matches", "Placements"]} active={activeTab} setActive={i => { embla?.scrollTo(i); setActiveTab(i) }}/>
-					<Carousel withControls={false} getEmblaApi={setEmbla}>
-						<Carousel.Slide>
-							<MatchesTable athleteId={athleteId} bouts={bouts} startDate={startDate} endDate={endDate} />
-						</Carousel.Slide>
-						<Carousel.Slide>
-							<PlacementsDisplay athleteId={athleteId} wrestlers={wrestlers} startDate={startDate} endDate={endDate} />
-						</Carousel.Slide>
-					</Carousel>*/}
+				<Stack>
+					<TimeframeSummary title="Total Summary" bouts={filteredBouts} wrestlers={filteredWrestlers} identityPersonId={athleteId} />
+					{}
 				</Stack>
 			) : null}
 			{/*wrestlers ? (

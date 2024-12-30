@@ -18,13 +18,7 @@ import { MantineReactTable, MRT_ColumnDef, useMantineReactTable } from "mantine-
 import styles from "./MatchesTable.module.css";
 import { useMediaQuery } from "@mantine/hooks";
 import { TeamObject } from "../api/types/objects/team";
-
-type MatchesTableProps = {
-	athleteId: string;
-	bouts: BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>>,
-	startDate?: Date | null,
-	endDate?: Date | null,
-}
+import { AthleteDataProps } from "../Athletes";
 
 type UsableData = {
 	date: dayjs.Dayjs;
@@ -43,7 +37,7 @@ type UsableData = {
 	bout: BoutObject;
 };
 
-export default function MatchesTable({ athleteId, bouts, startDate, endDate }: MatchesTableProps) {
+export default function MatchesTable({ bouts, identityPersonId }: AthleteDataProps) {
 	const mobile = useMediaQuery(`(max-width: ${em(750)})`);
 
 	const columns = useMemo<MRT_ColumnDef<UsableData>[]>(() => [
@@ -139,13 +133,13 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 		const noOpponent = bout.attributes.winType == "FOR" || bout.attributes.winType == "BYE";
 		const noOpponentString = bout.attributes.winType == "FOR" ? "Forfeit" : "Bye";
 
-		const isAWin = winner?.attributes.identityPersonId == athleteId;
+		const isAWin = winner?.attributes.identityPersonId == identityPersonId;
 
 		const topWrestler = FloAPI.findIncludedObjectById<WrestlerObject>(bout.attributes.topWrestlerId, "wrestler", bouts) as NonNullable<WrestlerObject>;
 		const bottomWrestler = FloAPI.findIncludedObjectById<WrestlerObject>(bout.attributes.bottomWrestlerId, "wrestler", bouts) as NonNullable<WrestlerObject>;
 
-		const opponent = topWrestler?.attributes.identityPersonId == athleteId ? bottomWrestler : topWrestler;
-		const thisWrestler = topWrestler?.attributes.identityPersonId == athleteId ? topWrestler : bottomWrestler;
+		const opponent = topWrestler?.attributes.identityPersonId == identityPersonId ? bottomWrestler : topWrestler;
+		const thisWrestler = topWrestler?.attributes.identityPersonId == identityPersonId ? topWrestler : bottomWrestler;
 
 		const opponentTeam = FloAPI.findIncludedObjectById<TeamObject>(opponent?.attributes.teamId, "team", bouts);
 		const thisTeam = FloAPI.findIncludedObjectById<TeamObject>(thisWrestler?.attributes.teamId, "team", bouts);
@@ -229,13 +223,13 @@ export default function MatchesTable({ athleteId, bouts, startDate, endDate }: M
 					const noOpponent = bout.attributes.winType == "FOR" || bout.attributes.winType == "BYE";
 					const noOpponentString = bout.attributes.winType == "FOR" ? "Forfeit" : "Bye";
 
-					const isAWin = winner?.attributes.identityPersonId == athleteId;
+					const isAWin = winner?.attributes.identityPersonId == identityPersonId;
 
 					const topWrestler = FloAPI.findIncludedObjectById<WrestlerObject>(bout.attributes.topWrestlerId, "wrestler", bouts) as NonNullable<WrestlerObject>;
 					const bottomWrestler = FloAPI.findIncludedObjectById<WrestlerObject>(bout.attributes.bottomWrestlerId, "wrestler", bouts) as NonNullable<WrestlerObject>;
 
-					const opponent = topWrestler?.attributes.identityPersonId == athleteId ? bottomWrestler : topWrestler;
-					const thisWrestler = topWrestler?.attributes.identityPersonId == athleteId ? topWrestler : bottomWrestler;
+					const opponent = topWrestler?.attributes.identityPersonId == identityPersonId ? bottomWrestler : topWrestler;
+					const thisWrestler = topWrestler?.attributes.identityPersonId == identityPersonId ? topWrestler : bottomWrestler;
 
 					const opponentTeam = FloAPI.findIncludedObjectById<TeamObject>(opponent?.attributes.teamId, "team", bouts);
 					const thisTeam = FloAPI.findIncludedObjectById<TeamObject>(thisWrestler?.id, "team", bouts);

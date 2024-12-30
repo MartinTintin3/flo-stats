@@ -1,8 +1,7 @@
-import { ActionIcon, Group, TextInput } from "@mantine/core";
+import { Button, Group, TextInput } from "@mantine/core";
 import React from "react";
 import { ID_REGEX } from "../main";
 import { useNavigate } from "react-router";
-import { IconSearch } from "@tabler/icons-react";
 
 type Props = {
 	loading: boolean;
@@ -38,6 +37,19 @@ export default function SearchBar({ loading }: Props) {
 		if (inputError && inputFocused) setInputError(false);
 	}, [inputFocused]);
 
+	const searchFor = async (query: string, useOfp: boolean) => {
+		if (!query) {
+			// setInputError(true);
+		} else {
+			const test = ID_REGEX.exec(query);
+			if (!test) {
+				navigate(`/search?q=${encodeURIComponent(query)}&page=1&ofp=${useOfp}`);
+			} else {
+				navigate(`/athletes/${test[0]}`);
+			}
+		}
+	};
+
 	return (
 		<Group justify="center" mb="xl">
 			<TextInput
@@ -50,29 +62,25 @@ export default function SearchBar({ loading }: Props) {
 				onBlur={() => setInputFocused(false)}
 				size="md"
 			/>
-			<ActionIcon
+			<Button
 				variant="outline"
 				loading={loading}
 				onClick={() => {
-					if (!inputValue) {
-						// setInputError(true);
-					} else {
-						const test = ID_REGEX.exec(inputValue);
-						if (!test) {
-							// void searchFor(inputValue);
-							navigate(`/search?q=${encodeURIComponent(inputValue)}&page=1`);
-						} else {
-							// void downloadData(test[0]);
-							navigate(`/athletes/${test[0]}`);
-						}
-					}
+					searchFor(inputValue, false);
 				}}
 				ref={searchButtonRef}
-				h={40}
-				w={40}
 			>
-				<IconSearch />
-			</ActionIcon>
+				Narrow Search
+			</Button>
+			<Button
+				variant="outline"
+				loading={loading}
+				onClick={() => {
+					searchFor(inputValue, true);
+				}}
+			>
+				Broad Search
+			</Button>
 		</Group>
 	);
 }
