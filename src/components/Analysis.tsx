@@ -1,16 +1,6 @@
 import React from "react";
-import { WrestlerObject } from "../api/types/objects/wrestler";
-import { AllBoutRelationships, AllWrestlerRelationships } from "../api/types/relationships";
-import { BoutsResponse, WrestlersResponse } from "../api/types/responses";
-import { FloObject, UUID } from "../api/types/types";
-import { BoutObject } from "../api/types/objects/bout";
 import { Card, Group, Text } from "@mantine/core";
-
-type Props = {
-	wrestlers: WrestlersResponse<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>;
-	bouts: BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>>;
-	id: UUID;
-}
+import { AthleteDataProps } from "../Athletes";
 
 type Ratio = [number, number];
 
@@ -34,7 +24,7 @@ function reduce(frac: Ratio): Ratio {
     return [frac[0] / a, frac[1] / a];
 }
 
-export default function Analysis({ wrestlers, bouts, id }: Props) {
+export default function Analysis({ wrestlers, bouts, identityPersonId }: AthleteDataProps) {
 	const [stats, setStats] = React.useState<Stats>();
 
 	React.useEffect(() => {
@@ -56,10 +46,10 @@ export default function Analysis({ wrestlers, bouts, id }: Props) {
 				const bottomWrestler = wrestlers.data.find(w => w.id == bout.relationships.bottomWrestler.data.id);
 				const winner = wrestlers.data.find(w => w.id == bout.attributes.winnerWrestlerId);
 
-				const isAWin = winner?.attributes.identityPersonId == id;
+				const isAWin = winner?.attributes.identityPersonId == identityPersonId;
 				
 				stats.wins += +isAWin;
-				stats.losses += +(winner?.attributes.identityPersonId != id);
+				stats.losses += +(winner?.attributes.identityPersonId != identityPersonId);
 				stats.pins += +(isAWin && bout.attributes.winType == "F");
 				stats.techs += +(isAWin && bout.attributes.winType == "TF");
 			});

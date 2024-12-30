@@ -20,6 +20,50 @@ export type BaseResponse<O extends FloObject, R extends Relationship | void, I =
 export type BoutsResponse<R extends RelationshipToBout | void, I extends Exclude<FloObject, BoutObject> | void> = BaseResponse<BoutObject, R, I>;
 export type WrestlersResponse<R extends RelationshipToWrestler | void, I extends Exclude<FloObject, WrestlerObject> | void> = BaseResponse<WrestlerObject, R, I>;
 
+export type NodeResult = {
+	meta: {
+		page: number;
+		pages: number;
+		limit: number;
+		total: number;
+		max_pages: number;
+		max_limit: number;
+		source: string;
+		duration: number;
+		sites: number[];
+		type: string;
+		extra: any;
+	};
+	data: {
+		asset_url: string;
+		thumbnail_url: string;
+		should_show_read_more: boolean;
+		drill_through_link: string | null;
+		meta_collections_page_title: string;
+        meta_collections_page_description: string;
+        meta_collections_videos_page_title: string;
+        meta_collections_videos_page_description: string;
+        meta_collections_entries_page_title: string;
+        meta_collections_entries_page_description: string;
+        meta_collections_schedule_page_title: string;
+        meta_collections_schedule_page_description: string;
+        meta_collections_news_page_title: string;
+        meta_collections_news_page_description: string;
+		metadata_filters: {
+			id: number;
+			type: string;
+		}[];
+		aggregated_node_ids: number[];
+		title: string;
+		short_title: string;
+		code: any;
+		arena_person_identity_id: UUID;
+		slug: string;
+		slug_uri: string;
+		original_entity: SearchResultPerson;
+	}
+}
+
 export type SearchResultPerson = {
 	arena_person_identity_id: UUID;
 	asset: {
@@ -78,8 +122,23 @@ export type SearchResultPerson = {
 	modified_at: string;
 }
 
-export type SearchResults = {
-	data: Array<SearchResultPerson> | null;
+export type SearchResultPersonUseOfp = {
+	asset_url: string;
+	duration: number;
+	id: string;
+	modified_at: string;
+	node: {
+		id: number;
+	};
+	premium: boolean;
+	publish_start_date: string;
+	slug_uri: string;
+	title: string;
+	type: "person";
+}
+
+export type SearchResults<D extends SearchResultPerson | SearchResultPersonUseOfp> = {
+	data: Array<D> | null;
 	meta: {
 		duration: number;
 		limit: number;

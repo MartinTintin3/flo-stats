@@ -13,13 +13,10 @@ import { FloObject } from "../api/types/types";
 import { WrestlerObject } from "../api/types/objects/wrestler";
 
 export type PlacementsDisplayProps = {
-	athleteId: string;
 	wrestlers: WrestlersResponse<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>,
-	startDate?: Date | null,
-	endDate?: Date | null,
 };
 
-export default function PlacementsDisplay({ athleteId, wrestlers, startDate, endDate }: PlacementsDisplayProps) {
+export default function PlacementsDisplay({ wrestlers }: PlacementsDisplayProps) {
 	return (
 		<Accordion p="2rem">
 			{wrestlers?.data.map(wrestler => {
@@ -39,7 +36,7 @@ export default function PlacementsDisplay({ athleteId, wrestlers, startDate, end
 					<Accordion.Item key={wrestler.id} value={wrestler.id}>
 						<Card className={styles.card}>
 							<Accordion.Control>
-								<Stack direction="horizontal" gap="xs" content="center" ta="center">
+								<Stack gap="xs" content="center" ta="center">
 									<Title order={4} style={{ marginBottom: 0 }}>{event?.attributes.name}</Title>
 									<Text size="xl" fw={placement?.attributes.placement == 1 ? 700 : 400} c={color}>
 										{placement?.attributes.placementDisplay ?? "DNP"}</Text>
