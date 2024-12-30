@@ -61,26 +61,30 @@ export default function SearchBar({ loading }: Props) {
 				onFocus={() => setInputFocused(true)}
 				onBlur={() => setInputFocused(false)}
 				size="md"
+				spellCheck={false}
+				autoComplete="true"
 			/>
-			<Button
-				variant="outline"
-				loading={loading}
-				onClick={() => {
-					searchFor(inputValue, false);
-				}}
-				ref={searchButtonRef}
-			>
-				Narrow Search
-			</Button>
-			<Button
-				variant="outline"
-				loading={loading}
-				onClick={() => {
-					searchFor(inputValue, true);
-				}}
-			>
-				Broad Search
-			</Button>
+			<Group>
+				<Button
+					variant="outline"
+					loading={loading}
+					onClick={() => {
+						searchFor(inputValue, false);
+					}}
+					ref={searchButtonRef}
+				>
+					Narrow Search
+				</Button>
+				<Button
+					variant="outline"
+					loading={loading}
+					onClick={() => {
+						searchFor(inputValue, true);
+					}}
+				>
+					Broad Search
+				</Button>
+			</Group>
 		</Group>
 	);
 }
