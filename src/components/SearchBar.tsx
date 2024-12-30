@@ -61,6 +61,8 @@ export default function SearchBar({ loading }: Props) {
 				onFocus={() => setInputFocused(true)}
 				onBlur={() => setInputFocused(false)}
 				size="md"
+				spellCheck={false}
+				autoComplete="true"
 			/>
 			<Group>
 				<Button
