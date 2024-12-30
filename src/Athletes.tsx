@@ -249,7 +249,7 @@ export default function Athletes() {
 				</Group>
 			</Stack>
 			{filteredBouts && filteredWrestlers && athleteId ? (
-				<Stack>
+				<Stack w="100%">
 					<TimeframeSummary title="Total Summary" bouts={filteredBouts} wrestlers={filteredWrestlers} identityPersonId={athleteId} />
 					{}
 				</Stack>

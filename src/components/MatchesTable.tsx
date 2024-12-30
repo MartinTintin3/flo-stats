@@ -63,7 +63,7 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			accessorFn: row => row.date.unix(),
 			id: "date", 	
 			enablePinning: false,
-			size: 120,
+			size: 100,
 			Cell: ({ row }) => (
 				<Text>{row.original.date.format("MM/DD/YY")}</Text>
 			),
@@ -73,6 +73,7 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			accessorFn: row => row.noOpponent ? row.noOpponentString : `${row.opponent?.attributes.firstName} ${row.opponent?.attributes.lastName}`,
 			id: "opponent",
 			enablePinning: false,
+			size: 140,
 			Cell: ({ row, renderedCellValue}) => (
 				row.original.noOpponent ? 
 				<Text fs={row.original.noOpponent ? "italic" : undefined} c={row.original.noOpponent ? "dimmed" : undefined}>
@@ -87,6 +88,7 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			header: "Opp. Team",
 			accessorFn: row => row.opponentTeam?.attributes.name,
 			id: "opponentTeam",
+			size: 140,
 			enablePinning: false,
 		},
 		{
@@ -101,7 +103,6 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			accessorFn: row => row.event.attributes.name,
 			id: "event",
 			enableResizing: true,
-			enablePinning: false,
 			size: mobile ? 200 : 300,
 			Cell: ({ row, renderedCellValue }) => (
 				<Link to={`https://arena.flowrestling.org/event/${row.original.event.id}`} target="__blank" style={{ textDecoration: "none", textOverflow: "ellipsis", overflow: "hidden" }}>
@@ -113,11 +114,13 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			header: "Round",
 			accessorFn: row => row.roundName?.attributes.displayName,
 			id: "round",
+			size: 100,
 		},
 		{
 			header: "Weight",
-			accessorFn: row => `${row.weightClass.attributes.name} ${row.division?.attributes.measurementUnit}`,
+			accessorFn: row => `${row.weightClass.attributes.name} ${row.division?.attributes.measurementUnit ?? ""}`,
 			id: "weight",
+			size: 100,
 		}
 	], []);
 
@@ -183,6 +186,12 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			sorting: [{ id: "date", desc: true }],
 			columnPinning: {
 				left: ["winLoss"],
+			}
+		},
+		mantineTableBodyCellProps: {
+			style: {
+				overflow: "hidden",
+				textOverflow: "ellipsis",
 			}
 		},
 		layoutMode: "grid-no-grow",
