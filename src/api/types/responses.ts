@@ -9,7 +9,7 @@ export type BaseResponse<O extends FloObject, R extends Relationship | void, I =
 	meta: {
 		total: number;
 	}
-	links: {
+	links?: {
 		first: string;
 		last?: string;
 		next?: string;

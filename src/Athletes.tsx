@@ -123,11 +123,69 @@ export default function Athletes() {
 
 	const [basicInfo, setBasicInfo] = React.useState<BasicInfo | null>(null);
 
-	/*const seasons = React.useMemo<{ name: string, bouts: Bouts, wrestlers: Wrestlers }[]>(() => {
-		bouts?.data.forEach(bout => {
+	const seasons = React.useMemo<{ name: string, bouts: Bouts, wrestlers: Wrestlers }[]>(() => {
+		if (!filteredBouts || !filteredWrestlers) return [];
+		const seasons: { name: string, bouts: Bouts, wrestlers: Wrestlers }[] = [];
+		// Season starts after Thanksgiving
+
+		filteredBouts.data.forEach(bout => {
+			const date = dayjs(FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", filteredBouts)?.attributes.startDateTime);
+			const seasonStart = date.clone().startOf("year").month(10).date(1).isBefore(date) ? date.clone().startOf("year").month(10).date(1) : date.clone().startOf("year").month(10).date(1).subtract(1, "year");
+			const seasonName = `${seasonStart.format("YYYY")}-${seasonStart.add(1, "year").format("YY")}`;
 			
+			const season = seasons.find(s => s.name == seasonName);
+			if (season) {
+				season.bouts.data.push(bout);
+				season.bouts.meta.total++;
+			} else {
+				seasons.push({
+					name: seasonName,
+					bouts: {
+						data: [bout],
+						included: filteredBouts.included,
+						meta: { total: 1 },
+						links: filteredBouts.links,
+					},
+					wrestlers: {
+						data: [],
+						included: filteredWrestlers.included,
+						meta: { total: 0 },
+					},
+				});
+			}
 		});
-	}, [filteredBouts, filteredWrestlers]);*/
+
+		filteredWrestlers.data.forEach(wrestler => {
+			const event = FloAPI.findIncludedObjectById<EventObject>(wrestler.attributes.eventId, "event", filteredWrestlers);
+			const date = dayjs(event?.attributes.startDateTime);
+			const seasonStart = date.clone().startOf("year").month(10).date(1).isBefore(date) ? date.clone().startOf("year").month(10).date(1) : date.clone().startOf("year").month(10).date(1).subtract(1, "year");
+			const seasonName = `${seasonStart.format("YYYY")}-${seasonStart.add(1, "year").format("YY")}`;
+
+			const season = seasons.find(s => s.name == seasonName);
+			if (season) {
+				season.wrestlers.data.push(wrestler);
+				season.wrestlers.meta.total++;
+			} else {
+				seasons.push({
+					name: seasonName,
+					bouts: {
+						data: [],
+						included: filteredBouts.included,
+						meta: { total: 0 },
+					},
+					wrestlers: {
+						data: [wrestler],
+						included: filteredWrestlers.included,
+						meta: { total: 1 },
+					}
+				});
+			}
+		});
+
+		console.log({seasons});
+
+		return seasons;
+	}, [filteredBouts, filteredWrestlers]);
 
 	const downloadData = async (identityPersonId: string) => {
 		if (identityPersonId == athleteId || identityPersonId == downloadingFor) return;
@@ -251,7 +309,9 @@ export default function Athletes() {
 			{filteredBouts && filteredWrestlers && athleteId ? (
 				<Stack w="100%">
 					<TimeframeSummary title="Total Summary" bouts={filteredBouts} wrestlers={filteredWrestlers} identityPersonId={athleteId} />
-					{}
+					{seasons.map(season => (
+						<TimeframeSummary key={season.name} title={season.name} bouts={season.bouts} wrestlers={season.wrestlers} identityPersonId={athleteId} />
+					))}
 				</Stack>
 			) : null}
 			{/*wrestlers ? (

@@ -15,7 +15,6 @@ import "@mantine/nprogress/styles.css";
 import "@mantine/carousel/styles.css";
 import "mantine-react-table/styles.css";
 
-
 import SearchResultsPage from "./components/SearchResults.tsx";
 
 export const ID_REGEX = new RegExp("[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}"); // UUID v4

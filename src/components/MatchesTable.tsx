@@ -73,7 +73,6 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			accessorFn: row => row.noOpponent ? row.noOpponentString : `${row.opponent?.attributes.firstName} ${row.opponent?.attributes.lastName}`,
 			id: "opponent",
 			enablePinning: false,
-			size: 140,
 			Cell: ({ row, renderedCellValue}) => (
 				row.original.noOpponent ? 
 				<Text fs={row.original.noOpponent ? "italic" : undefined} c={row.original.noOpponent ? "dimmed" : undefined}>
@@ -88,15 +87,14 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			header: "Opp. Team",
 			accessorFn: row => row.opponentTeam?.attributes.name,
 			id: "opponentTeam",
-			size: 140,
 			enablePinning: false,
 		},
 		{
 			header: "Result",
 			accessorFn: row => row.noOpponent ? row.bout.attributes.winType : `${row.bout.attributes.winType} ${row.bout.attributes.result}`,
-			size: 120,
 			id: "result",
 			enablePinning: false,
+			maxSize: 120,
 		},
 		{
 			header: "Event",
@@ -114,13 +112,12 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			header: "Round",
 			accessorFn: row => row.roundName?.attributes.displayName,
 			id: "round",
-			size: 100,
+			maxSize: 130,
 		},
 		{
 			header: "Weight",
 			accessorFn: row => `${row.weightClass.attributes.name} ${row.division?.attributes.measurementUnit ?? ""}`,
 			id: "weight",
-			size: 100,
 		}
 	], []);
 

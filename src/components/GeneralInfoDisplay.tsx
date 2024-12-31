@@ -39,7 +39,7 @@ export default function GeneralInfoDisplay({ info }: Props) {
 					</Group>
 				</Stack>
 				<Stack gap="sm" justify="center">
-					<Text size="md" fw={600}>Registered Teams: </Text>
+					<Text size="md" fw={600}>Teams Wrestled For: </Text>
 					<Group gap="lg" justify="center">
 						{info.teams.map(team => (
 							<Paper p="sm" withBorder key={team.attributes.identityTeamId}>
