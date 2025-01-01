@@ -10,11 +10,9 @@ import { WrestlerObject } from "./api/types/objects/wrestler";
 import { BoutsIncludeAll, FloObject, WrestlersIncludeAll } from "./api/types/types";
 import { BoutObject } from "./api/types/objects/bout";
 
-import MatchesTable from "./components/MatchesTable";
 import { AllBoutRelationships, AllWrestlerRelationships } from "./api/types/relationships";
 import { useParams } from "react-router";
 
-import PlacementsDisplay from "./components/PlacementsDisplay";
 import dayjs from "dayjs";
 import { TeamAttributes, TeamObject } from "./api/types/objects/team";
 
