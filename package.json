@@ -1,7 +1,7 @@
 {
 	"name": "flo-stats",
 	"private": true,
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"type": "module",
 	"homepage": "https://martintm.dev/flo-stats-react",
 	"scripts": {
