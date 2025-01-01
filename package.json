@@ -3,7 +3,7 @@
 	"private": true,
 	"version": "1.0.0",
 	"type": "module",
-	"homepage": "https://martintm.dev/flo-stats-react",
+	"homepage": "https://flostats.com",
 	"scripts": {
 		"dev": "vite --host",
 		"build": "vite build",
