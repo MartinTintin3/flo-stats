@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import Athletes from "./Athletes.tsx";
-import { HashRouter, Route, Routes } from "react-router";
+import { BrowserRouter, HashRouter, Route, Routes } from "react-router";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { NavigationProgress } from "@mantine/nprogress";
 
@@ -44,7 +44,7 @@ ReactDOM.createRoot(root!).render(
 	<React.StrictMode>
 		<MantineProvider defaultColorScheme="dark" theme={theme}>
 			<NavigationProgress />
-			<HashRouter>
+			<BrowserRouter>
 				<SearchBar loading={false} />
 				{/*<ThemeToggle styles={{ root: {
 					position: "absolute",
@@ -58,7 +58,7 @@ ReactDOM.createRoot(root!).render(
 					<Route path="/athletes/:id" element={<Athletes />} />
 					<Route path="/teams/:id" element={<Athletes />} />
 				</Routes>
-			</HashRouter>
+			</BrowserRouter>
 		</MantineProvider>
 	</React.StrictMode>,
 );
