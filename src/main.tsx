@@ -44,7 +44,7 @@ ReactDOM.createRoot(root!).render(
 	<React.StrictMode>
 		<MantineProvider defaultColorScheme="dark" theme={theme}>
 			<NavigationProgress />
-			<BrowserRouter>
+			<HashRouter>
 				<SearchBar loading={false} />
 				{/*<ThemeToggle styles={{ root: {
 					position: "absolute",
@@ -58,7 +58,7 @@ ReactDOM.createRoot(root!).render(
 					<Route path="/athletes/:id" element={<Athletes />} />
 					<Route path="/teams/:id" element={<Athletes />} />
 				</Routes>
-			</BrowserRouter>
+			</HashRouter>
 		</MantineProvider>
 	</React.StrictMode>,
 );
