@@ -23,7 +23,7 @@ jobs:
 
       - name: build
         run: |
-          npm run build -- --base=/${{ github.event.repository.name }}/
+          npm run build -- --base=/
           touch dist/.nojekyll
 
       - name: Upload Artifacts
