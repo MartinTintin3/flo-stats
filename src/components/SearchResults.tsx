@@ -27,7 +27,7 @@ export default function SearchResultsPage() {
 	const [broadSearch, setBroadSearch] = React.useState<boolean>(false);
 
 	const [search, setSearch] = React.useState<string | null>(null);
-	
+
 	const [narrowResults, setNarrowResults] = React.useState<SearchResultsTyped<false> | null>(null);
 	const [broadResults, setBroadResults] = React.useState<SearchResultsTyped<true> | null>(null);
 

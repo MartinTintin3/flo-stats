@@ -53,7 +53,14 @@ ReactDOM.createRoot(root!).render(
 					margin: "2rem",
 				} }} size="lg" />*/}
 				<Routes>
-					<Route path="/" element={<></>} />
+					<Route path="/" element={<>
+						<meta name="description" content="Search for athletes on FloWrestling" />
+						<meta name="keywords" content="flo, wrestling, search, athletes, match, results, stats" />
+						<meta name="author" content="Martin Maroyan" />
+						<meta name="og:title" content="FloStats" />
+						<meta name="og:description" content="Search for athletes on FloWrestling" />
+						<meta name="og:image" content="/favicon.ico" />
+					</>} />
 					<Route path="/search" element={<SearchResultsPage />} />
 					<Route path="/athletes/:id" element={<Athletes />} />
 					<Route path="/teams/:id" element={<Athletes />} />
