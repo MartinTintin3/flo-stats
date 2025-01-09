@@ -196,10 +196,16 @@ export default function Athletes() {
 			const start = performance.now();
 			nprogress.start();
 			// Fetch all wrestler instances for athlete ID
+			let temp_progress = 0;
 			const wrestlersResponse = await FloAPI.fetchWrestlersByAthleteId<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>(identityPersonId, {
 				pageSize: 0,
 				pageOffset: 0,
-				onProgress: p => nprogress.set(p / 2),
+				onProgress: p => {
+					if (p > temp_progress) {
+						temp_progress = p;
+						nprogress.set(p / 2);
+					}
+				},
 			}, WrestlersIncludeAll);
 
 			wrestlersResponse.data.sort((a, b) => {
@@ -213,6 +219,7 @@ export default function Athletes() {
 			});
 
 			nprogress.set(50);
+			temp_progress = 50;
 
 			setWrestlers(wrestlersResponse);
 
@@ -220,7 +227,12 @@ export default function Athletes() {
 			const boutsResponse = await FloAPI.fetchBouts<AllBoutRelationships, Exclude<FloObject, BoutObject>>(identityPersonId, {
 				pageSize: 0,
 				pageOffset: 0,
-				onProgress: p => nprogress.set(p / 2 + 50),
+				onProgress: p => {
+					if (p > temp_progress) {
+						temp_progress = p;
+						nprogress.set(50 + p / 2);
+					}
+				},
 			}, BoutsIncludeAll);
 
 			const teamIdentityIds = [...new Set(wrestlersResponse.data.map(w => FloAPI.findIncludedObjectById<TeamObject>(w.attributes.teamId, "team", wrestlersResponse)).map(t => t?.attributes.identityTeamId).filter(t => typeof t == "string"))];
