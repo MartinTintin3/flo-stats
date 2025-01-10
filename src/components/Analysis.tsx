@@ -72,7 +72,7 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 
 	return stats ? (
 		<Card p="0" bg="var(--mantine-color-dark-7)" bd="1px solid var(--mantine-color-gray-7)" w="100%" {...props}>
-			<Flex gap="lg" justify="center" direction="row" wrap="wrap">
+			<Flex gap="lg" py="lg" justify="center" direction="row" wrap="wrap">
 				<Group gap={4}>
 					<Text fw={600}>Matches:</Text>
 					<Text>{stats.matches}</Text>
