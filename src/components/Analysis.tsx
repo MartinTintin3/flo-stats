@@ -13,6 +13,7 @@ type Stats = {
 	techs: number;
 	wlRatio: Ratio;
 	winPercentage: number;
+	shortestPin: { minutes: number, seconds: number } | null;
 	finishTypes: { type: string, wins: number, losses: number }[];
 }
 
@@ -38,6 +39,7 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 				techs: 0,
 				wlRatio: [0, 0],
 				winPercentage: 0,
+				shortestPin: null,
 				finishTypes: [],
 			};
 
@@ -58,6 +60,21 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 				if (finish) {
 					finish.wins += +isAWin;
 					finish.losses += +!isAWin;
+
+					if (isAWin && bout.attributes.winType == "F") {
+						const time = /(\d?\d?):(\d\d)/.exec(bout.attributes.result);
+						if (time && time.length > 1) {
+							const minutes = time.length > 2 ? parseInt(time[1]) : 0;
+							const seconds = time.length > 2 ? parseInt(time[2]) : parseInt(time[1]);
+							if (stats.shortestPin) {
+								if (minutes < stats.shortestPin.minutes || (minutes == stats.shortestPin.minutes && seconds < stats.shortestPin.seconds)) {
+									stats.shortestPin = { minutes, seconds };
+								}
+							} else {
+								stats.shortestPin = { minutes, seconds };
+							}
+						}
+					}
 				} else {
 					stats.finishTypes.push({ type: bout.attributes.winType, wins: +isAWin, losses: +!isAWin });
 				}
@@ -103,6 +120,10 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 				<Group gap={4}>
 					<Text fw={600}>Win Percentage:</Text>
 					<Text c={stats.winPercentage > 0.5 ? "green" : "red"}>{(stats.winPercentage * 100).toFixed(1)}%</Text>
+				</Group>
+				<Group gap={4}>
+					<Text fw={600}>Shortest Pin:</Text>
+					<Text c="green">{stats.shortestPin ? (stats.shortestPin.seconds < 10 ? "0" : stats.shortestPin.seconds) : "N/A"}</Text>
 				</Group>
 			</Flex>
 			<Accordion variant="default">
