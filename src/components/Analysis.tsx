@@ -123,7 +123,7 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 				</Group>
 				<Group gap={4}>
 					<Text fw={600}>Shortest Pin:</Text>
-					<Text c="green">{stats.shortestPin ? (stats.shortestPin.seconds < 10 ? "0" : stats.shortestPin.seconds) : "N/A"}</Text>
+					<Text c="green">{stats.shortestPin ? (stats.shortestPin.minutes + ":" + (stats.shortestPin.seconds < 10 ? "0" : stats.shortestPin.seconds)) : "N/A"}</Text>
 				</Group>
 			</Flex>
 			<Accordion variant="default">
