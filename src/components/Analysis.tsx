@@ -1,9 +1,20 @@
 import React from "react";
-import { Accordion, Card, CardProps, Flex, Group, PolymorphicComponentProps, Text, Title, useProps } from "@mantine/core";
+import { Accordion, Card, CardProps, Flex, Group, Text, Title } from "@mantine/core";
 import { AthleteDataProps } from "../Athletes";
 import { RadarChart } from "@mantine/charts";
+import { BoutAttributes } from "../api/types/objects/bout";
+import { AllBoutRelationships } from "../api/types/relationships";
+import { ObjectIdentifier } from "../api/types/types";
 
 type Ratio = [number, number];
+
+type Bout = ObjectIdentifier & {
+	type: "bout";
+} & {
+	attributes: BoutAttributes;
+} & {
+	relationships: AllBoutRelationships;
+}
 
 type Stats = {
 	matches: number;
@@ -13,18 +24,19 @@ type Stats = {
 	techs: number;
 	wlRatio: Ratio;
 	winPercentage: number;
-	shortestPin: { minutes: number, seconds: number } | null;
+	quickestWin?: { minutes: number, seconds: number, bout: Bout };
+	quickestLoss?: { minutes: number, seconds: number, bout: Bout };
 	finishTypes: { type: string, wins: number, losses: number }[];
 }
 
 function reduce(frac: Ratio): Ratio {
-    var a = frac[0];
-    var b = frac[1];
-    var c;
-    while (b) {
-        c = a % b; a = b; b = c;
-    }
-    return [frac[0] / a, frac[1] / a];
+	let a = frac[0];
+	let b = frac[1];
+	let c;
+	while (b) {
+		c = a % b; a = b; b = c;
+	}
+	return [frac[0] / a, frac[1] / a];
 }
 
 export default function Analysis(props: AthleteDataProps & { children?: React.ReactNode } & CardProps) {
@@ -39,7 +51,6 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 				techs: 0,
 				wlRatio: [0, 0],
 				winPercentage: 0,
-				shortestPin: null,
 				finishTypes: [],
 			};
 
@@ -50,7 +61,7 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 				const winner = wrestlers.data.find(w => w.id == bout.attributes.winnerWrestlerId);
 
 				const isAWin = winner?.attributes.identityPersonId == identityPersonId;
-				
+
 				stats.wins += +isAWin;
 				stats.losses += +(winner?.attributes.identityPersonId != identityPersonId);
 				stats.pins += +(isAWin && bout.attributes.winType == "F");
@@ -61,18 +72,22 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 					finish.wins += +isAWin;
 					finish.losses += +!isAWin;
 
-					if (isAWin && bout.attributes.winType == "F") {
-						const time = /(\d?\d?):(\d\d)/.exec(bout.attributes.result);
-						if (time && time.length > 1) {
-							const minutes = time.length > 2 ? parseInt(time[1]) : 0;
-							const seconds = time.length > 2 ? parseInt(time[2]) : parseInt(time[1]);
-							if (stats.shortestPin) {
-								if (minutes < stats.shortestPin.minutes || (minutes == stats.shortestPin.minutes && seconds < stats.shortestPin.seconds)) {
-									stats.shortestPin = { minutes, seconds };
-								}
-							} else {
-								stats.shortestPin = { minutes, seconds };
+					const time = /(\d?\d?):(\d\d)/.exec(bout.attributes.result);
+
+					if (time && time.length > 1) {
+						const minutes = time.length > 2 ? parseInt(time[1]) : 0;
+						const seconds = time.length > 2 ? parseInt(time[2]) : parseInt(time[1]);
+
+						const quickest = isAWin ? stats.quickestWin : stats.quickestLoss;
+
+						if (quickest) {
+							if (minutes < quickest.minutes || (minutes == quickest.minutes && seconds < quickest.seconds)) {
+								quickest.minutes = minutes;
+								quickest.seconds = seconds;
+								quickest.bout = bout;
 							}
+						} else {
+							stats[isAWin ? "quickestWin" : "quickestLoss"] = { minutes, seconds, bout };
 						}
 					}
 				} else {
@@ -122,8 +137,12 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 					<Text c={stats.winPercentage > 0.5 ? "green" : "red"}>{(stats.winPercentage * 100).toFixed(1)}%</Text>
 				</Group>
 				<Group gap={4}>
-					<Text fw={600}>Shortest Pin:</Text>
-					<Text c="green">{stats.shortestPin ? (stats.shortestPin.minutes + ":" + (stats.shortestPin.seconds < 10 ? "0" : stats.shortestPin.seconds)) : "N/A"}</Text>
+					<Text fw={600}>Quickest Win:</Text>
+					<Text c={stats.quickestWin ? "green" : "red"}>{stats.quickestWin ? (stats.quickestWin.minutes + ":" + (stats.quickestWin.seconds < 10 ? "0" : "" + stats.quickestWin.seconds)) : "N/A"} {stats.quickestWin ? stats.quickestWin.bout.attributes.winType : ""}</Text>
+				</Group>
+				<Group gap={4}>
+					<Text fw={600}>Quickest Loss:</Text>
+					<Text c={stats.quickestLoss ? "red" : "green"}>{stats.quickestLoss ? (stats.quickestLoss.minutes + ":" + (stats.quickestLoss.seconds < 10 ? "0" : "" + stats.quickestLoss.seconds)) : "N/A"} {stats.quickestLoss ? stats.quickestLoss.bout.attributes.winType : ""}</Text>
 				</Group>
 			</Flex>
 			<Accordion variant="default">
@@ -136,7 +155,7 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 							h={300}
 							w={300}
 							data={stats.finishTypes}
-							dataKey="type"	
+							dataKey="type"
 							withPolarAngleAxis
 							withPolarRadiusAxis
 							series={[
