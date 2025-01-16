@@ -138,11 +138,11 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 				</Group>
 				<Group gap={4}>
 					<Text fw={600}>Quickest Win:</Text>
-					<Text c={stats.quickestWin ? "green" : "red"}>{stats.quickestWin ? (stats.quickestWin.minutes + ":" + (stats.quickestWin.seconds < 10 ? "0" : "" + stats.quickestWin.seconds)) : "N/A"} {stats.quickestWin ? stats.quickestWin.bout.attributes.winType : ""}</Text>
+					<Text c={stats.quickestWin ? "green" : "red"}>{stats.quickestWin ? (stats.quickestWin.minutes + ":" + ((stats.quickestWin.seconds < 10 ? "0" : "") + stats.quickestWin.seconds)) : "N/A"} {stats.quickestWin ? stats.quickestWin.bout.attributes.winType : ""}</Text>
 				</Group>
 				<Group gap={4}>
 					<Text fw={600}>Quickest Loss:</Text>
-					<Text c={stats.quickestLoss ? "red" : "green"}>{stats.quickestLoss ? (stats.quickestLoss.minutes + ":" + (stats.quickestLoss.seconds < 10 ? "0" : "" + stats.quickestLoss.seconds)) : "N/A"} {stats.quickestLoss ? stats.quickestLoss.bout.attributes.winType : ""}</Text>
+					<Text c={stats.quickestLoss ? "red" : "green"}>{stats.quickestLoss ? (stats.quickestLoss.minutes + ":" + ((stats.quickestLoss.seconds < 10 ? "0" : "") + stats.quickestLoss.seconds)) : "N/A"} {stats.quickestLoss ? stats.quickestLoss.bout.attributes.winType : ""}</Text>
 				</Group>
 			</Flex>
 			<Accordion variant="default">
