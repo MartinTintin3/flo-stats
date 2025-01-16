@@ -319,7 +319,7 @@ export default function Athletes() {
 			{filteredBouts && filteredWrestlers && athleteId ? (
 				<Stack w="100%">
 					<TimeframeSummary title="Total Summary" bouts={filteredBouts} wrestlers={filteredWrestlers} identityPersonId={athleteId} />
-					{seasons.map(season => (
+					{seasons.filter(season => season.bouts.meta.total > 0).map(season => (
 						<TimeframeSummary key={season.name} title={season.name} bouts={season.bouts} wrestlers={season.wrestlers} identityPersonId={athleteId} />
 					))}
 				</Stack>
