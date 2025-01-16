@@ -56,8 +56,8 @@ export default function Athletes() {
 			tournaments: true,
 			duals: true,
 		},
-		byes: true,
-		forfeits: true,
+		byes: false,
+		forfeits: false,
 	});
 
 	React.useEffect(() => {
