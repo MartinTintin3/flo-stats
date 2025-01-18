@@ -75,6 +75,7 @@ export default function Athletes() {
 					const date = dayjs(bout.attributes.goDateTime ?? bout.attributes.endDateTime ?? FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", bouts)?.attributes.startDateTime);
 					if (startDate && date.isBefore(dayjs(startDate))) return false;
 					if (endDate && date.isAfter(dayjs(endDate))) return false;
+					if (bout.attributes.winType == "NC") return false;
 					if (bout.attributes.winType == "BYE" && !filter.byes) return false;
 					if (bout.attributes.winType == "FOR" && !filter.forfeits) return false
 					const event = FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", bouts);
