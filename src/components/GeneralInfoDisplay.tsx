@@ -1,6 +1,6 @@
 import { Card, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { GradeObject } from "../api/types/objects/grade";
-import { TeamAttributes, TeamObject } from "../api/types/objects/team";
+import { TeamAttributes } from "../api/types/objects/team";
 import { BoutObject } from "../api/types/objects/bout";
 import { Dayjs } from "dayjs";
 

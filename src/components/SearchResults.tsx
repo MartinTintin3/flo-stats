@@ -3,23 +3,12 @@ import React from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import FloAPI, { SearchResultsTyped } from "../api/FloAPI";
 import { NodeResult, SearchResultPerson, SearchResultPersonUseOfp, SearchResults } from "../api/types/responses";
-import { Card, Group, JsonInput, Pagination, Skeleton, Stack, Text, Title } from "@mantine/core";
+import { Card, Pagination, Skeleton, Stack, Text, Title } from "@mantine/core";
 import dayjs from "dayjs";
 
 import styles from "./SearchResults.module.css";
 
 const PAGE_SIZE = 10;
-
-function chunk<T>(array: T[], size: number): T[][] {
-	if (!array.length) {
-		return [];
-	}
-
-	const head = array.slice(0, size);
-	const tail = array.slice(size);
-
-	return [head, ...chunk(tail, size)];
-}
 
 export default function SearchResultsPage() {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -51,7 +40,6 @@ export default function SearchResultsPage() {
 
 	React.useEffect(() => {
 		const q = searchParams.get("q");
-		const page = searchParams.get("page");
 		const ofp = searchParams.get("ofp");
 
 		if (q) {
@@ -159,7 +147,7 @@ export default function SearchResultsPage() {
 			) : ((narrowResults && narrowResults.data && !broadSearch) ? (
 				<Stack align="stretch" gap="xl" mb="xl">
 					<Stack>
-						{narrowResults.data.map((result, i) => (
+						{narrowResults.data.map((result) => (
 							<Card key={result.id} styles={{ root: { textAlign: "left", flexBasis: "11rem", justifyContent: "center" } }} p="lg" className={styles.result} mx="xs">
 								<Link to={`/athletes/${result.arena_person_identity_id}`} style={{ textDecoration: "none" }} className={styles.resultLink}>
 									<Title order={3}>{result.name}</Title><Text size="xs" c="dimmed">ID: {result.arena_person_identity_id}</Text>
@@ -181,7 +169,7 @@ export default function SearchResultsPage() {
 			) : (broadResults && broadResults.data && broadSearch) ? (
 				<Stack align="stretch" gap="xl" mb="xl">
 					<Stack>
-						{extraData.size ? Array.from(extraData.values()).map((extra, i) => (
+						{extraData.size ? Array.from(extraData.values()).map((extra) => (
 							<Card key={extra.data.original_entity.id} styles={{ root: { textAlign: "left", flexBasis: "11rem", justifyContent: "center" } }} p="lg" className={styles.result} mx="xs">
 								<Link to={`/athletes/${extra.data.original_entity.arena_person_identity_id}`} style={{ textDecoration: "none" }} className={styles.resultLink}>
 									<Title order={3}>{extra.data.original_entity.name}</Title><Text size="xs" c="dimmed">ID: {extra.data.original_entity.arena_person_identity_id}</Text>
@@ -192,7 +180,7 @@ export default function SearchResultsPage() {
 									{extra.data.original_entity.birth_date ? <Text><Text span fw={600}>Birthday:</Text> {dayjs(extra.data.original_entity.birth_date).format("MMMM D, YYYY")}</Text> : <Text c="dimmed">Birth date unavailable</Text>}
 								</Link>
 						</Card>
-						)) : broadResults.data.map((result, i) => (
+						)) : broadResults.data.map((result) => (
 							<Card key={result.id} styles={{ root: { textAlign: "left", flexBasis: "11rem", justifyContent: "center" } }} p="lg" className={styles.result} mx="xs" onClick={() => !extraData.get(result.node.id) ? broadResultsClick(result) : null}>
 								<Title order={3}>{result.title}</Title><Text size="xs" c="dimmed">ID: {result.node.id} ({result.id})</Text>
 								<Text>Loading...</Text>

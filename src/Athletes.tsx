@@ -1,5 +1,5 @@
 import React from "react";
-import { Checkbox, Group, Overlay, Stack, Tabs } from "@mantine/core";
+import { Checkbox, Group, Overlay, Stack } from "@mantine/core";
 import { nprogress } from "@mantine/nprogress";
 
 

@@ -1,14 +1,11 @@
-import { em, Group, Table, Text } from "@mantine/core";
-import { BoutsResponse, WrestlersResponse } from "../api/types/responses";
+import { em, Text } from "@mantine/core";
 import { BoutObject } from "../api/types/objects/bout";
-import { FloObject } from "../api/types/types";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import FloAPI from "../api/FloAPI";
 import { WrestlerObject } from "../api/types/objects/wrestler";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { EventObject } from "../api/types/objects/event";
-import { AllBoutRelationships, AllWrestlerRelationships } from "../api/types/relationships";
-import { data, Link } from "react-router";
+import { Link } from "react-router";
 import { RoundNameObject } from "../api/types/objects/roundName";
 import { WeightClassObject } from "../api/types/objects/weightClass";
 import { DivisionObject } from "../api/types/objects/division";
@@ -48,7 +45,7 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			Cell: ({ cell }) => <Text ta="center" size="sm" c={cell.getValue<string>() == "W" ? "green" : "red"}>{cell.getValue<string>()}</Text>,
 			size: 50,
 			enableSorting: false,
-			Header: ({ column }) => <Text ta="center" size="sm">W/L</Text>,
+			Header: () => <Text ta="center" size="sm">W/L</Text>,
 			mantineTableBodyCellProps: {
 				styles: {
 					td: {

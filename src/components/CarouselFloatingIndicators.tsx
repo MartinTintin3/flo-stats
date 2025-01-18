@@ -3,7 +3,6 @@ import React from "react";
 
 import styles from "./CarouselFloatingIndicators.module.css";
 
-const data = ['React', 'Vue', 'Angular', 'Svelte'];
 
 export type CarouselFloatingIndicatorsProps = {
 	indicators: string[]

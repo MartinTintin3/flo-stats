@@ -5,6 +5,8 @@ import { RadarChart } from "@mantine/charts";
 import { BoutAttributes } from "../api/types/objects/bout";
 import { AllBoutRelationships } from "../api/types/relationships";
 import { ObjectIdentifier } from "../api/types/types";
+import FloAPI from "../api/FloAPI";
+import { WrestlerObject } from "../api/types/objects/wrestler";
 
 type Ratio = [number, number];
 
@@ -54,16 +56,16 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 				finishTypes: [],
 			};
 
+			console.log("running...");
+
 			bouts.data.forEach(bout => {
 				stats.matches++;
-				const topWrestler = wrestlers.data.find(w => w.id == bout.relationships.topWrestler.data.id);
-				const bottomWrestler = wrestlers.data.find(w => w.id == bout.relationships.bottomWrestler.data.id);
-				const winner = wrestlers.data.find(w => w.id == bout.attributes.winnerWrestlerId);
+				const winner = FloAPI.findIncludedObjectById<WrestlerObject>(bout.attributes.winnerWrestlerId, "wrestler", bouts);
 
 				const isAWin = winner?.attributes.identityPersonId == identityPersonId;
 
 				stats.wins += +isAWin;
-				stats.losses += +(winner?.attributes.identityPersonId != identityPersonId);
+				stats.losses += +!isAWin;
 				stats.pins += +(isAWin && bout.attributes.winType == "F");
 				stats.techs += +(isAWin && bout.attributes.winType == "TF");
 
