@@ -58,7 +58,7 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 		{
 			header: "Date",
 			accessorFn: row => row.date.unix(),
-			id: "date", 	
+			id: "date",
 			enablePinning: false,
 			size: 100,
 			Cell: ({ row }) => (
@@ -71,13 +71,13 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 			id: "opponent",
 			enablePinning: false,
 			Cell: ({ row, renderedCellValue}) => (
-				row.original.noOpponent ? 
-				<Text fs={row.original.noOpponent ? "italic" : undefined} c={row.original.noOpponent ? "dimmed" : undefined}>
-					{renderedCellValue}
-				</Text> : 
-				<Link to={`/athletes/${row.original.opponent?.attributes.identityPersonId}`} style={{ textDecoration: "none" }}>
-					{renderedCellValue}
-				</Link>
+				row.original.noOpponent ?
+					<Text fs={row.original.noOpponent ? "italic" : undefined} c={row.original.noOpponent ? "dimmed" : undefined}>
+						{renderedCellValue}
+					</Text> :
+					<Link to={`/athletes/${row.original.opponent?.attributes.identityPersonId}`} style={{ textDecoration: "none" }}>
+						{renderedCellValue}
+					</Link>
 			),
 		},
 		{
@@ -246,7 +246,7 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 							<Table.Td className={styles.stickyMatch1} w="3rem" ta="center" bg={index % 2 == 0 ? "var(--table-striped-color)" : "var(--mantine-color-body)"} c={isAWin ? "green" : "red"}>{isAWin ? "W" : "L"}</Table.Td>
 							<Table.Td className={styles.scrollableMatch} bg={index % 2 == 0 ? "var(--table-striped-color)" : "var(--mantine-color-body)"}>{date.format("M/D/YY")}</Table.Td>
 							<Table.Td className={styles.scrollableMatch}>
-								{noOpponent ? <Text size="sm" fs={noOpponent ? "italic" : undefined} c={noOpponent ? "dimmed" : undefined}>{noOpponentString}</Text> : 
+								{noOpponent ? <Text size="sm" fs={noOpponent ? "italic" : undefined} c={noOpponent ? "dimmed" : undefined}>{noOpponentString}</Text> :
 									<Link to={`/athletes/${opponent?.attributes.identityPersonId}`} style={{ textDecoration: "none" }}>
 										{opponent?.attributes.firstName ?? noOpponentString} {opponent?.attributes.lastName}
 									</Link>

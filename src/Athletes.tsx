@@ -38,9 +38,6 @@ export default function Athletes() {
 	const [wrestlers, setWrestlers] = React.useState<Wrestlers | null>(null);
 	const [bouts, setBouts] = React.useState<Bouts | null>(null);
 
-	const [filteredWrestlers, setFilteredWrestlers] = React.useState<Wrestlers | null>(null);
-	const [filteredBouts, setFilteredBouts] = React.useState<Bouts | null>(null);
-
 	const [oldestBout, setOldestBout] = React.useState<Date | undefined>(undefined);
 	const [newestBout, setNewestBout] = React.useState<Date | undefined>(undefined);
 
@@ -58,6 +55,7 @@ export default function Athletes() {
 		},
 		byes: false,
 		forfeits: false,
+		ignoredTeams: new Set<string>(),
 	});
 
 	React.useEffect(() => {
@@ -67,58 +65,68 @@ export default function Athletes() {
 		}
 	}, [id]);
 
-	React.useEffect(() => {
-		if (bouts) {
-			let total = 0;
-			setFilteredBouts({
-				data: bouts.data.filter(bout => {
-					const date = dayjs(bout.attributes.goDateTime ?? bout.attributes.endDateTime ?? FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", bouts)?.attributes.startDateTime);
-					if (startDate && date.isBefore(dayjs(startDate))) return false;
-					if (endDate && date.isAfter(dayjs(endDate))) return false;
-					if (bout.attributes.winType == "NC") return false;
-					if (bout.attributes.winType == "BYE" && !filter.byes) return false;
-					if (bout.attributes.winType == "FOR" && !filter.forfeits) return false
-					const event = FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", bouts);
+	const filteredBouts = React.useMemo(() => {
+		let total = 0;
+		console.log("Filtering bouts");
+
+		return bouts ? {
+			data: bouts.data.filter(bout => {
+				const date = dayjs(bout.attributes.goDateTime ?? bout.attributes.endDateTime ?? FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", bouts)?.attributes.startDateTime);
+				if (startDate && date.isBefore(dayjs(startDate))) return false;
+				if (endDate && date.isAfter(dayjs(endDate))) return false;
+				if (bout.attributes.winType == "NC") return false;
+				if (bout.attributes.winType == "BYE" && !filter.byes) return false;
+				if (bout.attributes.winType == "FOR" && !filter.forfeits) return false;
+				const event = FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", bouts);
+				if (event?.attributes.isDual && !filter.eventType.duals) return false;
+				if (!event?.attributes.isDual && !filter.eventType.tournaments) return false;
+
+				const topWrestler = FloAPI.findIncludedObjectById<WrestlerObject>(bout.attributes.topWrestlerId, "wrestler", bouts) as NonNullable<WrestlerObject>;
+				const bottomWrestler = FloAPI.findIncludedObjectById<WrestlerObject>(bout.attributes.bottomWrestlerId, "wrestler", bouts) as NonNullable<WrestlerObject>;
+
+				const thisWrestler = topWrestler?.attributes.identityPersonId == id ? topWrestler : bottomWrestler;
+
+				const team = FloAPI.findIncludedObjectById<TeamObject>(thisWrestler.attributes.teamId, "team", bouts);
+				if (team?.attributes.identityTeamId && filter.ignoredTeams.has(team?.attributes.identityTeamId)) return false;
+
+				total++;
+				return true;
+			}),
+			included: bouts.included,
+			meta: { total },
+			links: bouts.links,
+		} : null;
+	}, [bouts, startDate, endDate, filter, id]);
+
+	const filteredWrestlers = React.useMemo(() => {
+		let total = 0;
+		return wrestlers ? {
+			data: wrestlers.data.filter(wrestler => {
+				const event = FloAPI.findIncludedObjectById<EventObject>(wrestler.attributes.eventId, "event", wrestlers);
+				const date = dayjs(event?.attributes.endDateTime ?? event?.attributes.startDateTime);
+				if (startDate && date.isBefore(dayjs(startDate))) return false;
+				if (endDate && date.isAfter(dayjs(endDate))) return false;
+				if (!filter.eventType.duals && event?.attributes.isDual) return false;
+				if (!filter.eventType.tournaments && !event?.attributes.isDual) return false;
+
+
+				total++;
+				return true;
+			}),
+			included: wrestlers.included.filter(i => {
+				if (i.type == "bracketPlacement") {
+					const event = FloAPI.findIncludedObjectById<EventObject>(i.attributes.eventId, "event", wrestlers);
+
 					if (event?.attributes.isDual && !filter.eventType.duals) return false;
 					if (!event?.attributes.isDual && !filter.eventType.tournaments) return false;
+				}
 
-					total++;
-					return true;
-				}),
-				included: bouts.included,
-				meta: { total },
-				links: bouts.links,
-			});
-		}
-		if (wrestlers) {
-			let total = 0;
-			setFilteredWrestlers({
-				data: wrestlers.data.filter(wrestler => {
-					const event = FloAPI.findIncludedObjectById<EventObject>(wrestler.attributes.eventId, "event", wrestlers);
-					const date = dayjs(event?.attributes.endDateTime ?? event?.attributes.startDateTime);
-					if (startDate && date.isBefore(dayjs(startDate))) return false;
-					if (endDate && date.isAfter(dayjs(endDate))) return false;
-					if (!filter.eventType.duals && event?.attributes.isDual) return false;
-					if (!filter.eventType.tournaments && !event?.attributes.isDual) return false;
-
-					total++;
-					return true;
-				}),
-				included: wrestlers.included.filter(i => {
-					if (i.type == "bracketPlacement") {
-						const event = FloAPI.findIncludedObjectById<EventObject>(i.attributes.eventId, "event", wrestlers);
-
-						if (event?.attributes.isDual && !filter.eventType.duals) return false;
-						if (!event?.attributes.isDual && !filter.eventType.tournaments) return false;
-					}
-
-					return true;
-				}),
-				meta: { total },
-				links: wrestlers.links,
-			});
-		}
-	}, [startDate, endDate, filter]);
+				return true;
+			}),
+			meta: { total },
+			links: wrestlers.links,
+		} : null;
+	}, [wrestlers, startDate, endDate, filter]);
 
 	const [basicInfo, setBasicInfo] = React.useState<BasicInfo | null>(null);
 
@@ -131,7 +139,7 @@ export default function Athletes() {
 			const date = dayjs(FloAPI.findIncludedObjectById<EventObject>(bout.attributes.eventId, "event", filteredBouts)?.attributes.startDateTime);
 			const seasonStart = date.clone().startOf("year").month(10).date(1).isBefore(date) ? date.clone().startOf("year").month(10).date(1) : date.clone().startOf("year").month(10).date(1).subtract(1, "year");
 			const seasonName = `${seasonStart.format("YYYY")}-${seasonStart.add(1, "year").format("YY")}`;
-			
+
 			const season = seasons.find(s => s.name == seasonName);
 			if (season) {
 				season.bouts.data.push(bout);
@@ -293,7 +301,7 @@ export default function Athletes() {
 	return (
 		<Stack w="100%" align="center">
 			{downloading ? <Overlay backgroundOpacity={0} blur={2} h={"100%"} fixed={true} /> : null}
-			{basicInfo ? <GeneralInfoDisplay info={basicInfo} /> : null}
+			{basicInfo ? <GeneralInfoDisplay info={basicInfo} setIgnoredTeams={teams => setFilter({ ...filter, ignoredTeams: teams })} reset={false} setReset={() => {}} /> : null}
 			<BoutDateFilter startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} oldestBout={oldestBout} newestBout={newestBout} />
 			<Stack gap="sm" mb="md" align="center">
 				<Group content="center">

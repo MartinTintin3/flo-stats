@@ -7,11 +7,11 @@ export default function ThemeToggle(props: ActionIconProps) {
 
 	const toggle = () => {
 		setColorScheme(colorScheme === "dark" ? "light" : "dark");
-	}
+	};
 
 	return (
 		<ActionIcon {...props} onClick={toggle} color={theme.primaryColor}>
 			{colorScheme === "dark" ? <IconSun /> : <IconMoon />}
 		</ActionIcon>
-	)
+	);
 }

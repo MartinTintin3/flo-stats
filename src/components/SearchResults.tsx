@@ -36,7 +36,7 @@ export default function SearchResultsPage() {
 			searchParams.set("page", narrowResults?.meta.page.toString());
 			setSearchParams(searchParams);
 		}
-	}, [narrowResults, broadResults]);
+	}, [narrowResults, broadResults, broadSearch, searchParams, setSearchParams]);
 
 	React.useEffect(() => {
 		const q = searchParams.get("q");
@@ -53,7 +53,7 @@ export default function SearchResultsPage() {
 		}
 
 		console.log(extraData);
-	}, [searchParams]);
+	}, [broadSearch, extraData, search, searchParams]);
 
 	React.useEffect(() => {
 		if (!search) return;
@@ -67,7 +67,7 @@ export default function SearchResultsPage() {
 			if (searchParams.get("ofp") === "true") setBroadResults(results as SearchResultsTyped<true>);
 			else setNarrowResults(results as SearchResultsTyped<false>);
 		}).catch(console.error);
-	}, [search, broadSearch]);
+	}, [search, broadSearch, searchParams]);
 
 	const searchFor = async <T extends boolean>(name: string, page: number = 1, useOfp: T) => {
 		if (page > 1000) page = 1000;
@@ -132,16 +132,16 @@ export default function SearchResultsPage() {
 	};
 
 	const broadResultsClick = (result: SearchResultPersonUseOfp) => {
-		FloAPI.fetchFromNode(result.node.id).then(data => {
-			navigate(`/athletes/${data.data.arena_person_identity_id}`);
+		void FloAPI.fetchFromNode(result.node.id).then(data => {
+			void navigate(`/athletes/${data.data.arena_person_identity_id}`);
 		});
-	}
+	};
 
 	return (
 		<Stack>
 			<Title order={1}>{broadSearch ? "Broad" : "Narrow"} {loading ? "Search...": "Results"}</Title>
 			{loading ? (
-				[...Array(PAGE_SIZE)].map((_, i) => (
+				[...Array<string>(PAGE_SIZE)].map((_, i) => (
 					<Skeleton key={i} style={{ marginBottom: "1rem" }} />
 				))
 			) : ((narrowResults && narrowResults.data && !broadSearch) ? (
@@ -179,7 +179,7 @@ export default function SearchResultsPage() {
 									<Text><Text span fw={600}>HS Graduation:</Text> {extra.data.original_entity.high_school_grad_year}</Text>
 									{extra.data.original_entity.birth_date ? <Text><Text span fw={600}>Birthday:</Text> {dayjs(extra.data.original_entity.birth_date).format("MMMM D, YYYY")}</Text> : <Text c="dimmed">Birth date unavailable</Text>}
 								</Link>
-						</Card>
+							</Card>
 						)) : broadResults.data.map((result) => (
 							<Card key={result.id} styles={{ root: { textAlign: "left", flexBasis: "11rem", justifyContent: "center" } }} p="lg" className={styles.result} mx="xs" onClick={() => !extraData.get(result.node.id) ? broadResultsClick(result) : null}>
 								<Title order={3}>{result.title}</Title><Text size="xs" c="dimmed">ID: {result.node.id} ({result.id})</Text>

@@ -3,6 +3,7 @@ import { GradeObject } from "../api/types/objects/grade";
 import { TeamAttributes } from "../api/types/objects/team";
 import { BoutObject } from "../api/types/objects/bout";
 import { Dayjs } from "dayjs";
+import React from "react";
 
 export type BasicInfo = {
 	name: string;
@@ -16,9 +17,32 @@ export type BasicInfo = {
 
 type Props = {
 	info: BasicInfo;
+	setIgnoredTeams: (teams: Set<string>) => void;
+	reset: boolean;
+	setReset: (reset: boolean) => void;
 }
 
-export default function GeneralInfoDisplay({ info }: Props) {
+export default function GeneralInfoDisplay({ info, setIgnoredTeams, reset, setReset }: Props) {
+	const [ignored, setIgnored] = React.useState<Set<string>>(new Set());
+
+	React.useEffect(() => {
+		console.log("info");
+		setIgnored(new Set());
+	}, [info]);
+
+	React.useEffect(() => {
+		if (reset) {
+			console.log("setting ignored");
+			setIgnored(new Set());
+			setReset(false);
+		}
+	}, [reset]);
+
+	React.useEffect(() => {
+		console.log("ignored");
+		setIgnoredTeams(ignored);
+	}, [ignored]);
+
 	return (
 		<Card p="xl" styles={{
 			root: {
@@ -42,7 +66,17 @@ export default function GeneralInfoDisplay({ info }: Props) {
 					<Text size="md" fw={600}>Teams Wrestled For: </Text>
 					<Group gap="lg" justify="center">
 						{info.teams.map(team => (
-							<Paper p="sm" withBorder key={team.attributes.identityTeamId}>
+							<Paper p="sm" withBorder key={team.attributes.identityTeamId} onClick={() => {
+								if (team.attributes.identityTeamId) {
+									if (ignored.has(team.attributes.identityTeamId)) {
+										ignored.delete(team.attributes.identityTeamId);
+									} else {
+										ignored.add(team.attributes.identityTeamId);
+									}
+									console.log("setting ignored");
+									setIgnored(new Set(ignored));
+								}
+							}} opacity={team.attributes.identityTeamId && ignored.has(team.attributes.identityTeamId) ? 0.5 : 1}>
 								<Stack gap={2}>
 									<Text size="md" fw="bold">{team.attributes.name}</Text>
 									<Text size="sm">{team.attributes.location.name}</Text>

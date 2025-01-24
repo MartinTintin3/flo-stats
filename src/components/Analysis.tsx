@@ -56,8 +56,6 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 				finishTypes: [],
 			};
 
-			console.log("running...");
-
 			bouts.data.forEach(bout => {
 				stats.matches++;
 				const winner = FloAPI.findIncludedObjectById<WrestlerObject>(bout.attributes.winnerWrestlerId, "wrestler", bouts);
@@ -102,7 +100,7 @@ export default function Analysis(props: AthleteDataProps & { children?: React.Re
 
 			return stats;
 		}
-	}, [wrestlers, bouts]);
+	}, [wrestlers, bouts, identityPersonId]);
 
 	return stats ? (
 		<Card p="0" bg="var(--mantine-color-dark-7)" bd="1px solid var(--mantine-color-gray-7)" w="100%" {...props}>
