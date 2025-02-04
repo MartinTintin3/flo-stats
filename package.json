@@ -1,5 +1,5 @@
 {
-	"name": "flo-stats",
+	"name": "flostats",
 	"private": true,
 	"version": "1.0.0",
 	"type": "module",
@@ -9,7 +9,8 @@
 		"build": "vite build",
 		"tsc": "tsc -b",
 		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"preinstall": "npx only-allow pnpm"
 	},
 	"dependencies": {
 		"@mantine/carousel": "^7.15.2",
