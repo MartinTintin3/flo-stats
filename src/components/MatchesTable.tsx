@@ -113,7 +113,7 @@ export default function MatchesTable({ bouts, identityPersonId }: AthleteDataPro
 		},
 		{
 			header: "Weight",
-			accessorFn: row => `${row.weightClass.attributes.name} ${row.division?.attributes.measurementUnit ?? ""}`,
+			accessorFn: row => `${row.weightClass?.attributes.name} ${row.division?.attributes.measurementUnit ?? ""}`,
 			id: "weight",
 		}
 	], []);
