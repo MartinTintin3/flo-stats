@@ -30,8 +30,8 @@ export type AthleteDataProps = {
 type Wrestlers = WrestlersResponse<AllWrestlerRelationships, Exclude<FloObject, WrestlerObject>>;
 type Bouts = BoutsResponse<AllBoutRelationships, Exclude<FloObject, BoutObject>>;
 
-export default function Athletes() {
-	const { id } = useParams();
+export default function Athletes({ idParam = "id" }: { idParam?: string }) {
+	const id = useParams()[`${idParam}`];
 
 	const [downloading, setDownloading] = React.useState<boolean>(false);
 
@@ -56,6 +56,10 @@ export default function Athletes() {
 		byes: false,
 		forfeits: false,
 		ignoredTeams: new Set<string>(),
+	});
+
+	React.useEffect(() => {
+		console.log("hi");
 	});
 
 	React.useEffect(() => {

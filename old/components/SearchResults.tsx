@@ -27,6 +27,9 @@ export default function SearchResultsPage() {
 
 	const navigate = useNavigate();
 
+	React.useEffect(() => {
+		console.log("Search results page mounted");
+	});
 
 	React.useEffect(() => {
 		if (broadSearch && broadResults) {
