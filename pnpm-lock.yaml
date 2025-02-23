@@ -14,6 +14,9 @@ importers:
       '@mantine/hooks':
         specifier: 7.17.0
         version: 7.17.0(react@19.0.0)
+      '@mantine/nprogress':
+        specifier: ^7.17.0
+        version: 7.17.0(@mantine/core@7.17.0(@mantine/hooks@7.17.0(react@19.0.0))(@types/react@19.0.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@mantine/hooks@7.17.0(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@next/bundle-analyzer':
         specifier: ^15.1.5
         version: 15.1.7
@@ -1238,6 +1241,19 @@ packages:
 
   '@mantine/hooks@7.17.0':
     resolution: {integrity: sha512-vo3K49mLy1nJ8LQNb5KDbJgnX0xwt3Y8JOF3ythjB5LEFMptdLSSgulu64zj+QHtzvffFCsMb05DbTLLpVP/JQ==}
+    peerDependencies:
+      react: ^18.x || ^19.x
+
+  '@mantine/nprogress@7.17.0':
+    resolution: {integrity: sha512-CggI5pvYe5w8f+ksvxahSUe7fJuJKali3ylk6M3oyUwb+ryBiD5oUP3am2cKQYI7+Hu2Bsyh2xeyvI/iVA3dyA==}
+    peerDependencies:
+      '@mantine/core': 7.17.0
+      '@mantine/hooks': 7.17.0
+      react: ^18.x || ^19.x
+      react-dom: ^18.x || ^19.x
+
+  '@mantine/store@7.17.0':
+    resolution: {integrity: sha512-nhWRYRLqvAjrD/ApKCXxuHyTWg2b5dC06Z5gmO8udj4pBgndNf9nmCl+Of90H6bgOa56moJA7UQyXoF1SfxqVg==}
     peerDependencies:
       react: ^18.x || ^19.x
 
@@ -6301,6 +6317,18 @@ snapshots:
       - '@types/react'
 
   '@mantine/hooks@7.17.0(react@19.0.0)':
+    dependencies:
+      react: 19.0.0
+
+  '@mantine/nprogress@7.17.0(@mantine/core@7.17.0(@mantine/hooks@7.17.0(react@19.0.0))(@types/react@19.0.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@mantine/hooks@7.17.0(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      '@mantine/core': 7.17.0(@mantine/hooks@7.17.0(react@19.0.0))(@types/react@19.0.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@mantine/hooks': 7.17.0(react@19.0.0)
+      '@mantine/store': 7.17.0(react@19.0.0)
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+
+  '@mantine/store@7.17.0(react@19.0.0)':
     dependencies:
       react: 19.0.0
 
