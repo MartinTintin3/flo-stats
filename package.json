@@ -25,6 +25,8 @@
     "@mantine/nprogress": "^7.17.0",
     "@next/bundle-analyzer": "^15.1.5",
     "@tabler/icons-react": "^3.28.1",
+    "dayjs": "^1.11.13",
+    "floapi": "^0.0.2",
     "next": "15.1.5",
     "react": "19.0.0",
     "react-dom": "19.0.0"

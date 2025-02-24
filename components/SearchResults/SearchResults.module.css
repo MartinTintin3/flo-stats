@@ -1,0 +1,26 @@
+.result {
+	border: 2px solid var(--mantine-color-default-border);
+
+	&:hover {
+		background-color: var(--mantine-color-default-hover);
+	}
+}
+
+a.resultLink {
+	color: var(--mantine-color-text);
+	text-decoration: none;
+
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+a.resultLink:active {
+	color: var(--mantine-color-dimmed);
+}
+
+.resultsPagination {
+	* {
+		justify-content: center;
+	}
+}

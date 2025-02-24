@@ -20,6 +20,8 @@ export default tseslint.config(
 			"quotes": ["error", "double"],
 			"indent": ["error", "tab", { "SwitchCase": 1 }],
 			"no-trailing-spaces": "error",
+			"curly": ["error", "multi-line"],
+			"no-param-reassign": "off",
 		}
 	}
 );
